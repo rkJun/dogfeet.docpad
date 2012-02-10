@@ -38,8 +38,8 @@ Topics covered:
 Read on for more.
 
 
-## What is continuation-passing style?
-## Continuation-passing style이 뭐야?
+# What is continuation-passing style?
+# Continuation-passing style이 뭐야?
 
 If a language supports continuations, the programmer can add control constructs like exceptions, backtracking, threads and generators.
 만약 언어가 continuation을 지원한다면, 프로그래머는 예외나 백트래킹이나 스레드, 제네레이터등의 제어 구조를 추가할 수 있다.
@@ -82,7 +82,7 @@ continuation은 일차 리턴 포인트이다.
 동일 함수가 일반적으로 작성되었다고 가정하자.
 
 	function id(x) {
-	  returnx ;
+	  return x ;
 	}
 
 
@@ -108,9 +108,9 @@ Here's the standard naive factorial:
 
 	function fact(n) {
 	  if(n == 0)
-		return1 ;
+		return 1 ;
 	  else
-		returnn * fact(n-1) ;
+		return n * fact(n-1) ;
 	}
 
 Here it is in CPS:
@@ -138,14 +138,14 @@ Here's tail-recursive factorial:
 아래는 tail-recursive 팩토리얼의 구현이다.
 
 	function fact(n) {
-	  returntail_fact(n,1) ;
+	  return tail_fact(n,1) ;
 	}
 	 
 	function tail_fact(n,a) {
 	  if(n == 0)
-		returna ;
+		return a ;
 	  else
-		returntail_fact(n-1,n*a) ;
+		return tail_fact(n-1,n*a) ;
 	}
 
 And, in CPS:
@@ -162,7 +162,9 @@ And, in CPS:
 		tail_fact(n-1,n*a,ret) ;
 	}
 
-CPS and Ajax CPS와 Ajax
+# CPS and Ajax 
+# CPS와 Ajax
+
 Ajax is a web programming technique which uses an XMLHttpRequest object in JavaScript to fetch data (asynchronously) from a server.
 Ajax는 자바스크립트의 XMLHttpRequest 객체를 이용해 비동기적으로 서버에서 데이터를 가져오는 웹 프로그래밍 기술이다.
 
@@ -253,9 +255,9 @@ It's not hard to implement fetch so that it operates in non-blocking mode or blo
 	  //  return request object; or else
 	  //  return the response.
 	  if(async)
-		returnreq ;
+		return req ;
 	  else
-		returnreq.responseText ;
+		return req.responseText ;
 	}
 
 
@@ -282,8 +284,8 @@ fetch를 이용해서 두 버전을 다 만든다.
 
 (See the example.)
 
-## CPS and non-blocking programming 
-## CPS와 논 블로킹 프로그래밍
+# CPS and non-blocking programming 
+# CPS와 논 블로킹 프로그래밍
 
 node.js is a high-performance, server-side platform for JavaScript in which blocking procedures are banned.
 node.js는 블로킹 프로시저가 없는 자바스크립트를 위한 고성능, 서버사이드 플랫폼이다. 
@@ -363,17 +365,17 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	function IMEType(filename) {
 	 varparsed = filename.match(/[.](.*)$/) ;
 	 if(!parsed)
-	   returnfalse;
+	   return false;
 	 varext = parsed[1] ;
-	 returnMIMEType[ext] ;
+	 return MIMEType[ext] ;
 	}
 	 
 	// Start the server, listening to port 8000:
 	httpd.listen(8000) ;
 
 
-## CPS for distributed computation
-## 분산 컴퓨팅을 위한 CPS
+# CPS for distributed computation
+# 분산 컴퓨팅을 위한 CPS
 
 CPS eases factoring a computation into local and distributed portions.
 CPS 
@@ -391,12 +393,13 @@ Now, suppose you want to compute factorial on a server, instead of locally.
 이제 이 코드가 로컬 컴퓨터가 아닌 서버에서 동작하기를 바란다고 하자.
 
 You could rewrite fact to block and wait for the server to respond.
-우리는 fact코드를 블록되
+우리는 fact 프로시저를 서버에서 블럭되어 응답이 오기까지 기다리도록 재작성 할 수 있다.
 
 That's bad.
 이거 나쁘다 
 
 Instead, assume you wrote choose in CPS:
+대신 CPS로 choose를 작성한다고 해보자.
 
 	function choose(n,k,ret) {
 	  fact (n,  function(factn) {
@@ -406,8 +409,9 @@ Instead, assume you wrote choose in CPS:
 	}
 
 Now, it's straightforward to redefine fact to asynchronously compute factorial on the server:
+이제 fact 프로시저가 비동기적으로 팩토리얼을 계산할 수 있도록 만들기가 쉬워졌다.
 
-	function act(n,ret) {
+	function fact(n,ret) {
 	 fetch ("./fact/"+ n,function(res) {
 	   ret(eval(res))
 	 }) ;
@@ -415,32 +419,37 @@ Now, it's straightforward to redefine fact to asynchronously compute factorial o
 
 
 (Fun exercise: modify the node.js server so that this works.)
+(재미있는 연습: 이 코드가 동작하도록 node.js를 변경해보세요.)
 
-## Implementing exceptions in CPS
-## Implementing exceptions in CPS
+# Implementing exceptions in CPS
+# CPS로 예외 처리 하기
 
 Once a program is in CPS, it breaks the standard exception mechanisms in the language. Fortunately, it's easy to implement exceptions in CPS.
+프로그램이 CPS로 작성되면, 그 언어의 표준적인 예외 처리 매커니즘은 쓸모없어진다. 다행히도 CPS에서 예외처리를 구연하는 것은 어렵지 않다.
 
 An exception is a special case of a continuation.
+예외 처리는 continuation의 특수한 케이스이다.
 
 By passing the current exceptional continuation alongside the current continuation, one can desugar try/catch blocks.
+현재 예외적 continuation을 현재 continuation과 함께 던이는 것은 try/catch 구문을 없앨 수 있다.
 
 Consider the following example, which uses exceptions to define a "total" version of factorial:
+다음 예제를 보면 팩토리얼의 "total"버전을 정의할 때 exeption을 이용하고 있다.
 
-	function act (n) {
+	function fact (n) {
 	  if(n < 0)
 		throw"n < 0";
 	  elseif(n == 0)
-		return1 ;
+		return 1 ;
 	  else
-		returnn * fact(n-1) ;
+		return n * fact(n-1) ;
 	}
 	 
-	function otal_fact (n) {
+	function total_fact (n) {
 	  try{
-		returnfact(n) ;
+		return fact(n) ;
 	  }catch(ex) {
-		returnfalse;
+		return false;
 	  }
 	}
 	 
@@ -448,50 +457,62 @@ Consider the following example, which uses exceptions to define a "total" versio
 	document.write("total_fact(-1): "+ total_fact(-1)) ;
 
 By adding an exceptional continuation in CPS, we can desugar the throw, try and catch:
+CPS에서 예외적 continuation을 추가해서, throw, try, catch 를 제거할 수 있다.
 
-	function act (n,ret,thro) {
+	function fact (n,ret,thro) {
 	 if(n < 0)
-	   thro("n < 0")
-	 elseif(n == 0)
-	   ret(1)
+	   thro("n < 0");
+	 else if(n == 0)
+	   ret(1);
 	 else
 	   fact(n-1,
-			function(t0) {
-			  ret(n*t0) ;
-			},
-			thro)
+		function(t0) {
+		  ret(n*t0);
+		},
+		thro);
 	}
 	 
-	function otal_fact (n,ret) {
+	function total_fact (n,ret) {
 	  fact (n,ret,
 		function(ex) {
-		  ret(false) ;
-		}) ;
+		  ret(false);
+		});
 	}
 	 
 	total_fact(10,function(res) {
-	  document.write("total_fact(10): "+ res)
-	}) ;
+	  document.write("total_fact(10): "+ res);
+	});
 	 
 	total_fact(-1,function(res) {
-	  document.write("total_fact(-1): "+ res)
-	}) ;
+	  document.write("total_fact(-1): "+ res);
+	});
 
 
+# CPS for compilation
+# 컴파일을 위한 CPS
 
-CPS for compilationFor three decades, CPS has been a powerful intermediate representation for compilers of function l programming languages.
+For three decades, CPS has been a powerful intermediate representation for compilers of functional programming languages.
+30년간 CPS는 함수형 언어 컴파일러가 사용하는 강력한 중간 표현식이었다.
 
 CPS desugars function return, exceptions and first-class continuations; function call turns into a single jump instruction.
+CPS는 함수의 리턴, 예외, 일차 continuation을 제거한다. 함수 호출은 그냥 하나의 점프 명령어로 변한다.
 
 In other words, CPS does a lot of the heavy lifting in compilation.
+다시 말해서, CPS는 컴파일에서 많은 것을 들어내는 데에 사용된다.
 
-Translating the lambda calculus to CPSThe lambda calculus is a miniature Lisp, with just enough expressions (applications, anonymous function  and variable references) to make it universal for computation:
+## Translating the lambda calculus to CPS
+## 람다 계산법을 CPS로 바꾸기
 
-	exp ::= (expexp)           ; function application
-		  |  (lambda (var) exp)  ; anonymous function
-		  |  var                 ; variable reference
+The lambda calculus is a miniature Lisp, with just enough expressions (applications, anonymous function  and variable references) to make it universal for computation:
+람다 계산법은 보편적인 계산을 하기에 충분한 표현식(어플리케이션, 익명함수 변수 레퍼런스)을 가진 Lisp의 축소판이다. 
+
+
+	exp ::= (expexp)           ; 함수 어플리케이션 function application
+		  |  (lambda (var) exp)  ; 익명 함수 anonymous function
+		  |  var                 ; 변수 레퍼런스 variable reference
 
 The following Racket code converts this language into CPS:
+다음 라켓 코드는 이 언어를 CPS로 바꾼다. 
 
 	(define (cps-convert term cont)
 	  (match term
@@ -517,30 +538,40 @@ The following Racket code converts this language into CPS:
 	  (cps-convert term '(lambda (ans) ans)))
 
 For those interested, Olivier Danvy has plenty of papers on writing efficient CPS converters.
+올리버 댄비는 효과적인 CPS 변환기에 관한 많은 논문을 써냈다.
 
-## Implementing call/cc in Lisp
+# Implementing call/cc in Lisp
+# Lisp에서 call/cc 구현하기
 
 The primitive call-with-current-continuation (commonly called call/cc) is the most powerful control-flow construct in modern programming.
+기본적인 현재 continuation 호출(일반적으로 call/cc라고 불린다.)은 현대 프로그래밍에서 가장 강력한 제어 흐름 구조이다. 
 
 CPS makes implementing call/cc trivial; it's a syntactic desugaring:
+CPS를 사용하면 call/cc를 아주 쉽게 구현할수 있다. 이는 문법적 디슈거링이다. 
 
-	 call/cc => (lambda (f cc) (f (lambda (x k) (cc x)) cc))
+	call/cc => (lambda (f cc) (f (lambda (x k) (cc x)) cc))
 
 This desugaring (in conjunction with the CPS transformation) is the best way to understand exactly what call/cc does.
+이 디슈거링은 call/cc가 정확히 무엇인지 이해할 수 있는 최고의 방법이다.
 
 It does exactly what it's name says it will: it calls the procedure given as an argument with a procedure that has captured the current continuation.
 
+
 When that procedure capturing the continuation gets invoked, it "returns" the computation to the point at which the computation was created.
 
-## Implementing call/cc in JavaScript
+# Implementing call/cc in JavaScript
+# JavaScript에서 call/cc 구현하기
 
 If one were to translate to continuation-passing style in JavaScript, call/cc has a simple definition:
+만약 자바스크립트에서 무엇인가가 CPS로 바뀐다면 call/cc는 간단하게 정의할 수 있다.
 
 	function callcc (f,cc) { 
 	  f(function(x,k) { cc(x) },cc)
 	}
 
-More resources
+# More resources
+# 더 읽어 볼 것 
+
    * JavaScript: The Definitive Guide, the best book on JavaScript.
    * JavaScript: The Good Parts, the only other good JavaScript book.
    * Andrew Appel's timeless classic Compiling with Continuations.
