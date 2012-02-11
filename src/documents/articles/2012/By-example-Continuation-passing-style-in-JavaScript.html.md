@@ -495,20 +495,24 @@ For three decades, CPS has been a powerful intermediate representation for compi
 30년간 CPS는 함수형 언어 컴파일러가 사용하는 강력한 중간 표현식이었다.
 
 CPS desugars function return, exceptions and first-class continuations; function call turns into a single jump instruction.
-
+CPS는 함수의 리턴, 예외, 일차 continuation을 제거한다. 함수 호출은 그냥 하나의 점프 명령어로 변한다.
 
 In other words, CPS does a lot of the heavy lifting in compilation.
+다시 말해서, CPS는 컴파일에서 많은 것을 들어내는 데에 사용된다.
 
 ## Translating the lambda calculus to CPS
-## 람다 표현식을 CPS로 바꾸기
+## 람다 계산법을 CPS로 바꾸기
 
 The lambda calculus is a miniature Lisp, with just enough expressions (applications, anonymous function  and variable references) to make it universal for computation:
+람다 계산법은 보편적인 계산을 하기에 충분한 표현식(어플리케이션, 익명함수 변수 레퍼런스)을 가진 Lisp의 축소판이다. 
 
-	exp ::= (expexp)           ; function application
-		  |  (lambda (var) exp)  ; anonymous function
-		  |  var                 ; variable reference
+
+	exp ::= (expexp)           ; 함수 어플리케이션 function application
+		  |  (lambda (var) exp)  ; 익명 함수 anonymous function
+		  |  var                 ; 변수 레퍼런스 variable reference
 
 The following Racket code converts this language into CPS:
+다음 라켓 코드는 이 언어를 CPS로 바꾼다. 
 
 	(define (cps-convert term cont)
 	  (match term
@@ -534,19 +538,24 @@ The following Racket code converts this language into CPS:
 	  (cps-convert term '(lambda (ans) ans)))
 
 For those interested, Olivier Danvy has plenty of papers on writing efficient CPS converters.
+올리버 댄비는 효과적인 CPS 변환기에 관한 많은 논문을 써냈다.
 
 # Implementing call/cc in Lisp
 # Lisp에서 call/cc 구현하기
 
 The primitive call-with-current-continuation (commonly called call/cc) is the most powerful control-flow construct in modern programming.
+기본적인 현재 continuation 호출(일반적으로 call/cc라고 불린다.)은 현대 프로그래밍에서 가장 강력한 제어 흐름 구조이다. 
 
 CPS makes implementing call/cc trivial; it's a syntactic desugaring:
+CPS를 사용하면 call/cc를 아주 쉽게 구현할수 있다. 이는 문법적 디슈거링이다. 
 
-	 call/cc => (lambda (f cc) (f (lambda (x k) (cc x)) cc))
+	call/cc => (lambda (f cc) (f (lambda (x k) (cc x)) cc))
 
 This desugaring (in conjunction with the CPS transformation) is the best way to understand exactly what call/cc does.
+이 디슈거링은 call/cc가 정확히 무엇인지 이해할 수 있는 최고의 방법이다.
 
 It does exactly what it's name says it will: it calls the procedure given as an argument with a procedure that has captured the current continuation.
+
 
 When that procedure capturing the continuation gets invoked, it "returns" the computation to the point at which the computation was created.
 
@@ -554,6 +563,7 @@ When that procedure capturing the continuation gets invoked, it "returns" the co
 # JavaScript에서 call/cc 구현하기
 
 If one were to translate to continuation-passing style in JavaScript, call/cc has a simple definition:
+만약 자바스크립트에서 무엇인가가 CPS로 바뀐다면 call/cc는 간단하게 정의할 수 있다.
 
 	function callcc (f,cc) { 
 	  f(function(x,k) { cc(x) },cc)
