@@ -82,7 +82,7 @@ continuation은 일급 리턴 포인트이다.
 ##예제: 항등 함수
 
 Consider the identity function written normally:
-항등 함수가 일반적으로 작성되었다고 가정하자.
+항등 함수가 평범하게 작성되었다고 해보자:
 
 	function id(x) {
 	  return x ;
@@ -129,10 +129,10 @@ Here it is in CPS:
 	}
 
 And, to "use" the function  we pass it a callback:
-그리고 이 함수를 사용하기 위해 콜백을 넘겨줬다:
+그리고 이 함수를 실제로 사용하기 위해 다음과 같이 콜백을 넘겨줬다:
 
 	fact (5,function(n) {
-	  console.log(n); // Prints 120 in Firebug.
+	  console.log(n); // 120이 출력된다.Prints 120 in Firebug.
 	})
 
 
@@ -205,31 +205,38 @@ It's not hard to implement fetch so that it operates in non-blocking mode or blo
 	/*
 	 fetch is an optionally-blocking
 	 procedure for client->server requests.
+	 fetch는 클라이언트에서 서버로 리퀘스트를 보낼때 블로킹 될 수도 있고 안될 수도 있다.
 	 
 	 If only a url is given, the procedure
 	 blocks and returns the contents of the url.
+	 만약 url만 넘겨주면 프로시저는 블로킹 되고 url이 가리키는 페이지의 내용을 리턴한다.
 	 
 	 If an onSuccess callback is provided,
 	 the procedure is non-blocking, and the
 	 callback is invoked with the contents
 	 of the file.
+	 만약 onSuccess 콜백이 주어지면 프로시저는 논블로킹이 된다. 콜백은 페이지의 내용을 인자로 받아 호출될 것이다.
 	 
 	 If an onFail callback is also provided,
 	 the procedure calls onFail in the event of
 	 a failure.
+	 만약 onFail 콜백까지 주어지면 요청이나 응답이 실패했을 때에 onFail이 fatch 프로시저에 의해서 호출된다.
 	 
 	*/
 	 
 	function fetch (url, onSuccess, onFail) {
 	 
 	  // Async only if a callback is defined:
+	  // 콜백이 정의 되어있어야만 비동기로 작동한다.
 	  varasync = onSuccess ?true:false;
 	  // (Don't complain about the inefficiency
 	  //  of this line; you're missing the point.)
+	  // (이 라인의 비효율성에 대해 태클걸지 않길 바란다. 이건 중요한게 아니다.)
 	 
-	  varreq ;// XMLHttpRequest object.
+	  varreq ;// XMLHttpRequest 객체.
 	 
 	  // The XMLHttpRequest callback:
+	  // XMLHttpRequest 콜백:
 	  function rocessReqChange() {
 		if(req.readyState == 4) {
 		  if(req.status == 200) {
@@ -243,22 +250,28 @@ It's not hard to implement fetch so that it operates in non-blocking mode or blo
 	  }
 	 
 	  // Create the XMLHttpRequest object:
+	  // XMLHttpRequest 객체를 만든다:
 	  if(window.XMLHttpRequest)
 		req =newXMLHttpRequest();
 	  elseif(window.ActiveXObject)
 		req =newActiveXObject("Microsoft.XMLHTTP");
 	 
 	  // If asynchronous, set the callback:
+	  // 비동기 모드라면 콜백을 세팅한다:
 	  if(async)
 		req.onreadystatechange = processReqChange;
 	 
 	  // Fire off the request:
+	  // 서버로 요청한다.
 	  req.open("GET", url, async);
 	  req.send(null);
 	 
 	  // If asynchronous,
 	  //  return request object; or else
 	  //  return the response.
+	  // 비동기 모드라면,
+	  //  요청 객체를 리턴한다; 아니라면
+	  //  응답을 리턴하다.
 	  if(async)
 		return req ;
 	  else
@@ -270,24 +283,26 @@ It's not hard to implement fetch so that it operates in non-blocking mode or blo
 ## 예제: 데이터 가져오기
 
 Consider a program that needs to grab a name for a UID.
-UID의 이름을 가져오는 프로그램이 필요하다고 하자.
+UID의 이름을 가져오는 프로그램이 필요하다고 하고,
 
 Using fetch, both of the following work:
-fetch를 이용해서 두 버전을 다 만든다.
+fetch를 이용해서 두 버전(동기, 비동기)을 다 만든다.
 
 	// Blocks until request in finished:
+	// 요청이 끝날때 까지 블로킹 되어있다:
 	varsomeName = fetch("./1031/name") ;
 	 
 	document.write ("someName: "+ someName +"<br>") ;
 	 
 	// Does not block:
+	// 블로킹 되지 않는다:
 	fetch("./1030/name",function(name) {
 	 document.getElementById("name").innerHTML = name ;
 	}) ;
 
 
 (See the example.)
-([예제][http://matt.might.net/articles/by-example-continuation-passing-style/code/client.html])
+([예제][])
 
 
 # CPS and non-blocking programming 
@@ -297,10 +312,10 @@ node.js is a high-performance, server-side platform for JavaScript in which bloc
 node.js는 블로킹 프로시저가 없는 자바스크립트를 위한 고성능, 서버사이드 플랫폼이다. 
 
 Cleverly, procedures which ordinarily would block (e.g. network or file I/O) take a callback that to be invoked with the result.
-똑똑하게도 보통의 블로킹되는 프로시저들은 콜백을 받아서 결과로써 콜백을 실행하게 되어있다.
+node.js는 영특하게도 보통의 블로킹되는 프로시저들은 콜백을 받아서 결과로써 콜백을 실행하게 되어있다.
 
 Partially CPS-converting a program makes for natural node.js programming.
-부분적으로 프로그램을 CPS 변환하는 것이 node.js 프로그래밍 다운 프로그래밍이다.
+프로그램을 부분적으로 CPS 변환하는 것이 node.js 프로그래밍 다운 프로그래밍이다.
 
 
 ## Example: Simple web server
@@ -315,17 +330,20 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	varfs = require('fs') ;
 	 
 	// Web server root:
+	// 웹 서버 루트경로:
 	varDocRoot ="./www/";
 	 
 	// Create the web server with a handler callback:
+	// 콜백을 넘겨주면서 웹 서버를 만든다:
 	varhttpd = http.createServer(function(req, res) {
 	  sys.puts(" request: "+ req.url) ;
 	 
-	  // Parse the url:
+	  // url 파싱:
 	  varu = url.parse(req.url,true) ;
 	  varpath = u.pathname.split("/") ;
 	 
 	  // Strip out .. in the path:
+	  // 경로에서 .. 를 없앤다.
 	  varlocalPath = u.pathname ;
 	  //  "<dir>/.." => ""
 	  varlocalPath =
@@ -338,6 +356,8 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	   
 	  // Read in the requested file, and send it back.
 	  // Note: readFile takes the current continuation:
+	  // 요청받은 파일을 읽어서 되돌려 보낸다.
+	  // Note: readFile은 현재 continuation을 넘겨받는다.
 	  fs.readFile(localPath,function(err,data) {
 		varheaders = {} ;
 	 
@@ -351,6 +371,7 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	 
 		  // If we can't find a content type,
 		  // let the client guess.
+		  // 만약 'content type'을 찾지 못한다면 클라이언트가 알아서 하도록 냅 두자.
 		  if(mimetype)
 			headers["Content-Type"] = mimetype ;
 	 
@@ -362,6 +383,7 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	}) ;
 	 
 	// Map extensions to MIME Types:
+	// 확장자와 MIME 타입을 매핑 시킨다:
 	varMIMETypes = {
 	 "html":"text/html",
 	 "js"   :"text/javascript",
@@ -378,6 +400,7 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	}
 	 
 	// Start the server, listening to port 8000:
+	// 8000번 포트를 리스닝 포트로 하여 서버를 시작한다:
 	httpd.listen(8000) ;
 
 
@@ -385,7 +408,6 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 # 분산 컴퓨팅을 위한 CPS
 
 CPS eases factoring a computation into local and distributed portions.
-CPS 
 
 
 Suppose you wrote the combinatorial choose function  first normally:
@@ -400,7 +422,7 @@ Now, suppose you want to compute factorial on a server, instead of locally.
 이제 이 코드가 로컬 컴퓨터가 아닌 서버에서 동작하기를 바란다고 하자.
 
 You could rewrite fact to block and wait for the server to respond.
-우리는 fact 프로시저를 서버에서 블럭되어 응답이 오기까지 기다리도록 재작성 할 수 있다.
+우리는 fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다리도록 재작성 할 수 있다.
 
 That's bad.
 이거 나쁘다 
@@ -439,7 +461,7 @@ An exception is a special case of a continuation.
 예외 처리는 continuation의 특수한 케이스이다.
 
 By passing the current exceptional continuation alongside the current continuation, one can desugar try/catch blocks.
-현재 예외적 continuation을 현재 continuation과 함께 던이는 것은 try/catch 구문을 없앨 수 있다.
+현재 예외적 continuation을 현재 continuation과 함께 던지는 것은 try/catch 구문을 없앨 수 있다.
 
 Consider the following example, which uses exceptions to define a "total" version of factorial:
 다음 예제를 보면 팩토리얼의 "total"버전을 정의할 때 exeption을 이용하고 있다.
@@ -590,3 +612,5 @@ If one were to translate to continuation-passing style in JavaScript, call/cc ha
    * The Lambda Papers.
    * My post on programming with continuations by example.
    * Jay McCarthy et al.'s papers on a continuation-based web-server.
+
+[예제]: http://matt.might.net/articles/by-example-continuation-passing-style/code/client.html
