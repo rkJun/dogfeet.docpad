@@ -591,7 +591,7 @@ When that procedure capturing the continuation gets invoked, it "returns" the co
 # JavaScript에서 call/cc 구현하기
 
 If one were to translate to continuation-passing style in JavaScript, call/cc has a simple definition:
-만약 어떤 자바스크립트 코드가 CPS로 바뀌어야 한다면 call/cc는 간단하게 정의할 수 있다.
+만약 어떤 자바스크립트 코드를 CPS로 바꾸고 싶다면 call/cc는 간단하게 정의할 수 있다.
 
 	function callcc (f,cc) { 
 	  f(function(x,k) { cc(x) },cc)
