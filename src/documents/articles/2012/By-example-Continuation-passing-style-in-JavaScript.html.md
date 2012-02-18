@@ -101,10 +101,8 @@ continuation은 일급 리턴 포인트(first-class return point)이다.
 	})
 
 
-## Example: Tail-recursive factorial
 ## 예제: Tail-recursive 팩토리얼
 
-Here's tail-recursive factorial:
 아래는 tail-recursive 팩토리얼의 구현이다.
 
 	function fact(n) {
@@ -118,8 +116,7 @@ Here's tail-recursive factorial:
 		return tail_fact(n-1,n*a) ;
 	}
 
-And, in CPS:
-그리고 아래는 CPS로 구현한 것이다.
+그리고 아래는 CPS.
 
 	function fact(n,ret) {
 	  tail_fact(n,1,ret) ;
