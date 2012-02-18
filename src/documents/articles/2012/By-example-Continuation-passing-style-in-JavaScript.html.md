@@ -236,23 +236,21 @@ UID의 이름을 가져오는 프로그램이 필요하다고 치고, fetch를 �
 ([예제][])
 
 
-# CPS and non-blocking programming 
+# CPS and non-blocking programming
 # CPS와 논 블로킹 프로그래밍
 
-node.js is a high-performance, server-side platform for JavaScript in which blocking procedures are banned.
 node.js는 블로킹 프로시저가 없는 자바스크립트를 위한 고성능, 서버사이드 플랫폼이다. 
 
-Cleverly, procedures which ordinarily would block (e.g. network or file I/O) take a callback that to be invoked with the result.
-node.js는 영특하게도 보통의 블로킹되는 프로시저들은 콜백을 받아서 결과로써 콜백을 실행하게 되어있다.
+node.js는 영특하게도 보통의 블로킹되는 프로시저들(e.g. 네트워크, 파일 I/O)은 콜백을 받아서 결과로써 콜백을 실행하게 되어있다.
 
 Partially CPS-converting a program makes for natural node.js programming.
-프로그램을 부분적으로 CPS 변환하는 것이 node.js 프로그래밍 다운 프로그래밍이다.
+프로그램을 부분적으로 CPS로 변환하는 것이 node.js 프로그래밍 다운 프로그래밍이다.
+node.js 다운 프로그래밍을 하기 위해 부분적으로 프로그램을 CPS로 바꿀것이다.
 
 
 ## Example: Simple web server
 ## 예제 : 간단한 웹 서버
 
-A simple web server in node.js passes a continuation to the file-reading procedure. Compared to the select-based approach to non-blocking IO, CPS makes non-blocking I/O straightforward.
 node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로 continuation을 넘기는 부분이 있다. select를 이용한 논 블러킹 IO에 비해 CPS를 이용한 논 블로킹 IO가 간단하다.
 
 	varsys = require('sys') ;
@@ -260,11 +258,9 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	varurl = require('url') ;
 	varfs = require('fs') ;
 	 
-	// Web server root:
 	// 웹 서버 루트경로:
 	varDocRoot ="./www/";
 	 
-	// Create the web server with a handler callback:
 	// 콜백을 넘겨주면서 웹 서버를 만든다:
 	varhttpd = http.createServer(function(req, res) {
 	  sys.puts(" request: "+ req.url) ;
@@ -273,7 +269,6 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	  varu = url.parse(req.url,true) ;
 	  varpath = u.pathname.split("/") ;
 	 
-	  // Strip out .. in the path:
 	  // 경로에서 .. 를 없앤다.
 	  varlocalPath = u.pathname ;
 	  //  "<dir>/.." => ""
@@ -285,8 +280,6 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	 
 	  sys.puts(" local path: "+ localPath) ;
 	   
-	  // Read in the requested file, and send it back.
-	  // Note: readFile takes the current continuation:
 	  // 요청받은 파일을 읽어서 되돌려 보낸다.
 	  // Note: readFile은 현재 continuation을 넘겨받는다.
 	  fs.readFile(localPath,function(err,data) {
@@ -300,9 +293,8 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 		}else{
 		  varmimetype = MIMEType(u.pathname) ;
 	 
-		  // If we can't find a content type,
-		  // let the client guess.
-		  // 만약 'content type'을 찾지 못한다면 클라이언트가 알아서 하도록 냅 두자.
+		  // 만약 'content type'을 찾지 못한다면 
+		  // 클라이언트가 알아서 하도록 냅 두자.
 		  if(mimetype)
 			headers["Content-Type"] = mimetype ;
 	 
@@ -313,7 +305,6 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	   }) ;
 	}) ;
 	 
-	// Map extensions to MIME Types:
 	// 확장자와 MIME 타입을 매핑 시킨다:
 	varMIMETypes = {
 	 "html":"text/html",
@@ -330,7 +321,6 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	 return MIMEType[ext] ;
 	}
 	 
-	// Start the server, listening to port 8000:
 	// 8000번 포트를 리스닝 포트로 하여 서버를 시작한다:
 	httpd.listen(8000) ;
 
