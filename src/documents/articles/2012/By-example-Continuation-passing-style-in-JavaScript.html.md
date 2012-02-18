@@ -1,46 +1,30 @@
 --- yaml
 layout: 'article'
-title: 'By example: Continuation-passing style in JavaScript'
+title: '예제로 설명하는 자바스크립트에서의 Continuation-passing style'
 author: 'Yongjae Choi'
 date: '2012-02-09'
-tags: ['javascript', 'CPS', 'programming']
+tags: ['javascript', 'CPS', 'programming', 'continuation']
 ---
 
-//예제로 설명하는 자바스크립트에서의 Continusation-passing style
-
-Continuation-passing style (CPS) originated as a style of programming in the 1970s, and it rose to prominence as an intermediate representation for compilers of advanced programming languages in the 1980s and 1990s.
 Continuation-passing style(CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨났고, 1980, 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
 
-It's now being rediscovered as a style of programming for non-blocking (usually distributed) systems.
 이제 이 프로그래밍 스타일은 논 블로킹 시스템(그리고 보통 분산 시스템)에서 다시 조명받고 있다.
 
-There's a warm spot in my heart for CPS, because it was the secret weapon in my Ph.D. It probably shaved off a couple years and immeasurable agony.
-내가 박사 과정일때에 CPS는 비밀무기였다. 그래서 난 CPS를 좋아한다. 아마 덕분에 난 2년정도를 아낄 수 있었고, 끝없는 고통에서 벗어날 수 있었다.
+내가 박사 과정일때에 CPS는 비밀무기였다. 그래서 난 CPS를 좋아한다. 아마 그 덕분에 난 2년 정도를 아낄 수 있었고, 끝없는 고통에서 벗어날 수 있었다.
 
-This article introduces CPS in both of its roles--as a style for non-blocking programming in JavaScript, and (briefly) as an intermediate form for a function l language.
-이 글은 자바스크립트에서의 논블로킹 프로그래밍 스타일로써의 CPS와 함수형 언어의 중간 형태로써의 CPS, 이렇게 두 가지 관점에서 CPS를 소개하는 글이다.
+이 글은 자바스크립트에서의 논 블로킹 프로그래밍 스타일로써의 CPS와 함수형 언어의 중간 형태로써의 CPS, 이렇게 두 가지 관점에서 CPS를 소개하는 글이다.
 
-Topics covered:
 주제는 다음과 같다. 
 
- * CPS in JavaScript
  * 자바스크립트에서의 CPS
- * CPS for Ajax programming
  * Ajax 프로그래밍을 위한 CPS
  * (node.js에서) 논 블로킹 프로그래밍을 위한 CPS 
- * CPS for non-blocking programming (in node.js)
  * 분산 프로그래밍을 위한 CPS 
- * CPS for distributed programming
- * How to implement exceptions using CPS
  * CPS를 이용해서 예외 처리 하는 방법 
- * A CPS converter for a minimal Lisp
- * 미니말 Lisp을 위한 CPS 컨버터 
- * How to implement call/cc in Lisp
+ * 미니멀 Lisp을 위한 CPS 컨버터 
  * 리습에서 call/cc 구현하는 방법
- * How to implement call/cc in JavaScript
  * 자바스크립트에서 call/cc 구현하는 방법 
 
-Read on for more.
 시작하자.
 
 
@@ -54,16 +38,16 @@ Sadly, many explanations of continuations (mine included) feel vague and unsatis
 슬프게도 continuation에 대한 많은 설명들은 막연하고 불충분한것 같다. 그런 것들은 더 탄탄한 교수법적인 기초가 필요하다.
 
 Continuation-passing style is that foundation.
-Continuation-passing 스타일이 바로 그 기초이다.
+Continuation-passing 스타일이 바로 그 기초이다.(주 : CPS를 이용하면 continuation에 대한 설명을 잘 할 수 있다는 의미.)
 
 Continuation-passing style gives continuations meaning in terms of code.
-Continuation-passing 스타일은 코드 측면에서 continuation의 의미가 있다.
+Continuation-passing 스타일은 코드라는 측면에서 continuation와 같은 의미가 있다.
 
 Even better, a programmer can discover continuation-passing style by themselves if subjected to one constraint:
-오히려, 하나의 제약 사항만 지킨다면 프로그래머는 continuation-passing 스타일을 저절로 알 수 있다.
+하나의 제약 사항만 지킨다면 프로그래머는 continuation-passing 스타일을 저절로 알 수도 있다.
 
 	No procedure is allowed to return to its caller--ever.
-	어떠한 프로시저도 caller로 리턴될 수 없다 -- 절대로.
+	어떠한 프로시저도 caller로 리턴될 수 없다.
 
 One hint makes programming in this style possible:
 아래 힌트는 그런 스타일로 프로그래밍 하는데 도움이 된다:
@@ -75,7 +59,7 @@ When a procedure is ready to "return" to its caller, it invokes the "current con
 프로시저가 caller로 "리턴" 해야할 때, 프로시저는 return 대신 "현재 continuation" 콜백을 호출한다. (이 콜백은 caller가 넘겨줬다.)
 
 A continuation is a first-class return point.
-continuation은 일급 리턴 포인트이다.
+continuation은 일급 리턴 포인트(first-class return point)이다.
 
 
 ## Example: Identity function 
@@ -215,7 +199,7 @@ It's not hard to implement fetch so that it operates in non-blocking mode or blo
 	 the procedure is non-blocking, and the
 	 callback is invoked with the contents
 	 of the file.
-	 만약 onSuccess 콜백이 주어지면 프로시저는 논블로킹이 된다. 콜백은 페이지의 내용을 인자로 받아 호출될 것이다.
+	 만약 onSuccess 콜백이 주어지면 프로시저는 논 블로킹이 된다. 콜백은 페이지의 내용을 인자로 받아 호출될 것이다.
 	 
 	 If an onFail callback is also provided,
 	 the procedure calls onFail in the event of
