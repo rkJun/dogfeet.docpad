@@ -9,7 +9,7 @@ tags: ['javascript', 'CPS', 'programming']
 //예제로 설명하는 자바스크립트에서의 Continusation-passing style
 
 Continuation-passing style (CPS) originated as a style of programming in the 1970s, and it rose to prominence as an intermediate representation for compilers of advanced programming languages in the 1980s and 1990s.
-Continuation-passing style(이하 CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨나고, 1980대와 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
+Continuation-passing style(CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨났고, 1980, 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
 
 It's now being rediscovered as a style of programming for non-blocking (usually distributed) systems.
 이제 이 프로그래밍 스타일은 논 블로킹 시스템(그리고 보통 분산 시스템)에서 다시 조명받고 있다.
@@ -79,7 +79,7 @@ continuation은 일급 리턴 포인트이다.
 
 
 ## Example: Identity function 
-##예제: 항등 함수
+## 예제: 항등 함수
 
 Consider the identity function written normally:
 항등 함수가 평범하게 작성되었다고 해보자:
@@ -408,10 +408,10 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 # 분산 컴퓨팅을 위한 CPS
 
 CPS eases factoring a computation into local and distributed portions.
-
+CPS를 사용하면 로컬과 분산에서의 처리가 덜 복잡해진다.
 
 Suppose you wrote the combinatorial choose function  first normally:
-조합의 선택 함수를 작성했다고 가정하자. 우선 일반적인 방법.
+조합을 계산해주는 함수인 choose를 작성해보자. 우선 일반적인 방법.
 
 	function choose (n,k) {
 	   return fact(n) /
@@ -419,13 +419,13 @@ Suppose you wrote the combinatorial choose function  first normally:
 	}
 
 Now, suppose you want to compute factorial on a server, instead of locally.
-이제 이 코드가 로컬 컴퓨터가 아닌 서버에서 동작하기를 바란다고 하자.
+이제 이 코드가 로컬 컴퓨터가 아닌 서버에서 동작했으면 좋겠다(고 치자).
 
 You could rewrite fact to block and wait for the server to respond.
 우리는 fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다리도록 재작성 할 수 있다.
 
 That's bad.
-이거 나쁘다 
+이거 좋지않다. 
 
 Instead, assume you wrote choose in CPS:
 대신 CPS로 choose를 작성한다고 해보자.
@@ -438,7 +438,7 @@ Instead, assume you wrote choose in CPS:
 	}
 
 Now, it's straightforward to redefine fact to asynchronously compute factorial on the server:
-이제 fact 프로시저가 비동기적으로 팩토리얼을 계산할 수 있도록 만들기가 쉬워졌다.
+이제 fact 프로시저로 비동기적으로 팩토리얼을 계산할 수 있도록 만들기가 쉬워졌다.
 
 	function fact(n,ret) {
 	 fetch ("./fact/"+ n,function(res) {
@@ -447,28 +447,24 @@ Now, it's straightforward to redefine fact to asynchronously compute factorial o
 	}
 
 
-(Fun exercise: modify the node.js server so that this works.)
-(재미있는 연습: 이 코드가 동작하도록 node.js를 변경해보세요.)
-
-
 # Implementing exceptions in CPS
 # CPS로 예외 처리 하기
 
 Once a program is in CPS, it breaks the standard exception mechanisms in the language. Fortunately, it's easy to implement exceptions in CPS.
-프로그램이 CPS로 작성되면, 그 언어의 표준적인 예외 처리 매커니즘은 쓸모없어진다. 다행히도 CPS에서 예외처리를 구연하는 것은 어렵지 않다.
+프로그램이 CPS로 작성되면, 그 언어의 표준적인 예외 처리 매커니즘은 쓸모없어진다. 다행히도 CPS에서 예외처리를 구현하는 것은 어렵지 않다.
 
 An exception is a special case of a continuation.
 예외 처리는 continuation의 특수한 케이스이다.
 
 By passing the current exceptional continuation alongside the current continuation, one can desugar try/catch blocks.
-현재 예외적 continuation을 현재 continuation과 함께 던지는 것은 try/catch 구문을 없앨 수 있다.
+'현재 예외적 continuation'을 '현재 continuation'과 함께 던지는 것으로 try/catch 구문을 없앨 수 있다.
 
 Consider the following example, which uses exceptions to define a "total" version of factorial:
 다음 예제를 보면 팩토리얼의 "total"버전을 정의할 때 exeption을 이용하고 있다.
 
 	function fact (n) {
 	  if(n < 0)
-		throw"n < 0";
+		throw "n < 0";
 	  elseif(n == 0)
 		return 1 ;
 	  else
@@ -491,7 +487,7 @@ CPS에서 예외적 continuation을 추가해서, throw, try, catch 를 제거�
 
 	function fact (n,ret,thro) {
 	 if(n < 0)
-	   thro("n < 0");
+	   thro ("n < 0");
 	 else if(n == 0)
 	   ret(1);
 	 else
@@ -535,15 +531,14 @@ In other words, CPS does a lot of the heavy lifting in compilation.
 ## 람다 계산법을 CPS로 바꾸기
 
 The lambda calculus is a miniature Lisp, with just enough expressions (applications, anonymous function  and variable references) to make it universal for computation:
-람다 계산법은 보편적인 계산을 하기에 충분한 표현식(어플리케이션, 익명함수 변수 레퍼런스)을 가진 Lisp의 축소판이다. 
-
+람다는 보편적인 계산을 할 수 있는 표현식들(어플리케이션, 익명함수 변수 레퍼런스)을 가진 Lisp의 축소판이다. 
 
 	exp ::= (expexp)           ; 함수 어플리케이션 function application
 		  |  (lambda (var) exp)  ; 익명 함수 anonymous function
 		  |  var                 ; 변수 레퍼런스 variable reference
 
 The following Racket code converts this language into CPS:
-다음 라켓 코드는 이 언어를 CPS로 바꾼다. 
+아래의 복잡한 코드는 위 언어를 CPS로 변환한다.
 
 	(define (cps-convert term cont)
 	  (match term
@@ -569,17 +564,17 @@ The following Racket code converts this language into CPS:
 	  (cps-convert term '(lambda (ans) ans)))
 
 For those interested, Olivier Danvy has plenty of papers on writing efficient CPS converters.
-올리버 댄비는 효과적인 CPS 변환기에 관한 많은 논문을 써냈다.
+관심있는 사람은, 올리비에 댄비가 효과적인 CPS 변환기에 관한 많은 논문을 써냈으니 참고하길 바란다.
 
 
 # Implementing call/cc in Lisp
 # Lisp에서 call/cc 구현하기
 
 The primitive call-with-current-continuation (commonly called call/cc) is the most powerful control-flow construct in modern programming.
-기본적인 현재 continuation 호출(일반적으로 call/cc라고 불린다.)은 현대 프로그래밍에서 가장 강력한 제어 흐름 구조이다. 
+기본적인 '현재 continuation 호출'(보통 call/cc라고 불린다.)은 현대 프로그래밍에서 가장 강력한 제어 흐름 구조이다. 
 
 CPS makes implementing call/cc trivial; it's a syntactic desugaring:
-CPS를 사용하면 call/cc를 아주 쉽게 구현할수 있다. 이는 문법적 디슈거링이다. 
+call/cc는 CPS로 아주 쉽게 구현할수 있다: 이는 문법적 디슈거링이다. 
 
 	call/cc => (lambda (f cc) (f (lambda (x k) (cc x)) cc))
 
@@ -596,7 +591,7 @@ When that procedure capturing the continuation gets invoked, it "returns" the co
 # JavaScript에서 call/cc 구현하기
 
 If one were to translate to continuation-passing style in JavaScript, call/cc has a simple definition:
-만약 자바스크립트에서 무엇인가가 CPS로 바뀐다면 call/cc는 간단하게 정의할 수 있다.
+만약 어떤 자바스크립트 코드를 CPS로 바꾸고 싶다면 call/cc는 간단하게 정의할 수 있다.
 
 	function callcc (f,cc) { 
 	  f(function(x,k) { cc(x) },cc)
