@@ -28,37 +28,26 @@ Continuation-passing style(CPS)은 1970년대에 프로그래밍 스타일의 �
 시작하자.
 
 
-# What is continuation-passing style?
 # 'Continuation-passing 스타일'이 뭐야?
 
-If a language supports continuations, the programmer can add control constructs like exceptions, backtracking, threads and generators.
 만약 언어가 continuation을 지원한다면, 프로그래머는 예외와 백트래킹, 스레드, 제네레이터등의 제어 구조를 추가할 수 있다.
 
-Sadly, many explanations of continuations (mine included) feel vague and unsatisfying. Such power deserves a solid pedagogical foundation.
 슬프게도 continuation에 대한 많은 설명들은 막연하고 불충분한것 같다. 그런 것들은 더 탄탄한 교수법적인 기초가 필요하다.
 
-Continuation-passing style is that foundation.
 Continuation-passing 스타일이 바로 그 기초이다.(주 : CPS를 이용하면 continuation에 대한 설명을 잘 할 수 있다는 의미.)
 
-Continuation-passing style gives continuations meaning in terms of code.
 Continuation-passing 스타일은 코드라는 측면에서 continuation와 같은 의미가 있다.
 
-Even better, a programmer can discover continuation-passing style by themselves if subjected to one constraint:
 하나의 제약 사항만 지킨다면 프로그래머는 continuation-passing 스타일을 저절로 알 수도 있다.
 
-	No procedure is allowed to return to its caller--ever.
 	어떠한 프로시저도 caller로 리턴될 수 없다.
 
-One hint makes programming in this style possible:
 아래 힌트는 그런 스타일로 프로그래밍 하는데 도움이 된다:
 
-	Procedures can take a callback to invoke upon their return value.
 	프로시저는 그들의 리턴 값으로 호출 가능한 콜백을 받을 수 있다.
 
-When a procedure is ready to "return" to its caller, it invokes the "current continuation" callback (provided by its caller) on the return value.
 프로시저가 caller로 "리턴" 해야할 때, 프로시저는 return 대신 "현재 continuation" 콜백을 호출한다. (이 콜백은 caller가 넘겨줬다.)
 
-A continuation is a first-class return point.
 continuation은 일급 리턴 포인트(first-class return point)이다.
 
 
