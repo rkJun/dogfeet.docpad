@@ -150,46 +150,37 @@ XMLHttpRequest를 이용하면 블로킹 프로시저인 'fetch(url)'을 작성�
 이렇게 코딩하는 과정에서 부분적으로 코딩 스타일이 CPS로 자연스레 변한다.
 
 
-## Implementing fetch
 ## fetch 구현
 
-It's not hard to implement fetch so that it operates in non-blocking mode or blocking mode, depending on whether the programmer supplied a callback:
- 콜백 제공 여부에 따라 논블러킹 모드나 블러킹 모드의 Fetch 를 구현하는 것은 어렵지 않다.
+ 콜백 제공 여부에 따라 논블러킹 모드나 블러킹 모드를 스위칭하며 동작하는 fetch 를 구현하는 것은 어렵지 않다.
 
 	/*
-	 fetch is an optionally-blocking
-	 procedure for client->server requests.
-	 fetch는 클라이언트에서 서버로 리퀘스트를 보낼때 블로킹 될 수도 있고 안될 수도 있다.
+	 fetch는 클라이언트에서 서버로 리퀘스트를
+	 보낼때 블로킹 될 수도 있고 안될 수도 있다.
 	 
-	 If only a url is given, the procedure
-	 blocks and returns the contents of the url.
-	 만약 url만 넘겨주면 프로시저는 블로킹 되고 url이 가리키는 페이지의 내용을 리턴한다.
+	 만약 url만 넘겨주면 프로시저는 블로킹 되고
+	 url이 가리키는 페이지의 내용을 리턴한다.
 	 
-	 If an onSuccess callback is provided,
-	 the procedure is non-blocking, and the
-	 callback is invoked with the contents
-	 of the file.
-	 만약 onSuccess 콜백이 주어지면 프로시저는 논 블로킹이 된다. 콜백은 페이지의 내용을 인자로 받아 호출될 것이다.
+	 만약 onSuccess 콜백이 주어지면 
+	 프로시저는 논 블로킹이 된다. 
+	 콜백은 페이지의 내용을 
+	 인자로 받아 호출 될 것이다.
 	 
-	 If an onFail callback is also provided,
-	 the procedure calls onFail in the event of
-	 a failure.
-	 만약 onFail 콜백까지 주어지면 요청이나 응답이 실패했을 때에 onFail이 fatch 프로시저에 의해서 호출된다.
+	 만약 onFail 콜백까지 주어지면
+	 요청이나 응답이 실패했을 때에 
+	 onFail이 fatch 프로시저에 의해서 호출된다.
 	 
 	*/
 	 
 	function fetch (url, onSuccess, onFail) {
 	 
 	  // Async only if a callback is defined:
-	  // 콜백이 정의 되어있어야만 비동기로 작동한다.
 	  varasync = onSuccess ?true:false;
-	  // (Don't complain about the inefficiency
-	  //  of this line; you're missing the point.)
-	  // (이 라인의 비효율성에 대해 태클걸지 않길 바란다. 이건 중요한게 아니다.)
+	  // (이 라인의 비효율성에 대해 태클걸지 
+	  //  않길 바란다. 이건 중요한게 아니다.)
 	 
-	  varreq ;// XMLHttpRequest 객체.
+	  varreq ; // XMLHttpRequest 객체.
 	 
-	  // The XMLHttpRequest callback:
 	  // XMLHttpRequest 콜백:
 	  function rocessReqChange() {
 		if(req.readyState == 4) {
@@ -203,26 +194,20 @@ It's not hard to implement fetch so that it operates in non-blocking mode or blo
 		}
 	  }
 	 
-	  // Create the XMLHttpRequest object:
 	  // XMLHttpRequest 객체를 만든다:
 	  if(window.XMLHttpRequest)
 		req =newXMLHttpRequest();
 	  elseif(window.ActiveXObject)
 		req =newActiveXObject("Microsoft.XMLHTTP");
 	 
-	  // If asynchronous, set the callback:
 	  // 비동기 모드라면 콜백을 세팅한다:
 	  if(async)
 		req.onreadystatechange = processReqChange;
 	 
-	  // Fire off the request:
 	  // 서버로 요청한다.
 	  req.open("GET", url, async);
 	  req.send(null);
 	 
-	  // If asynchronous,
-	  //  return request object; or else
-	  //  return the response.
 	  // 비동기 모드라면,
 	  //  요청 객체를 리턴한다; 아니라면
 	  //  응답을 리턴하다.
