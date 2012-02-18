@@ -51,10 +51,8 @@ Continuation-passing 스타일은 코드라는 측면에서 continuation와 같�
 continuation은 일급 리턴 포인트(first-class return point)이다.
 
 
-## Example: Identity function 
 ## 예제: 항등 함수
 
-Consider the identity function written normally:
 항등 함수가 평범하게 작성되었다고 해보자:
 
 	function id(x) {
@@ -62,22 +60,19 @@ Consider the identity function written normally:
 	}
 
 
-and then in continuation-passing style:
-그리고 이건 continuation-passing 스타일로는 다음과 같이 작성한다:
+그리고 CPS로는 다음과 같이 작성한다:
 
 	function id(x,cc) {
 	  cc(x) ;
 	}
 
-Sometimes, calling the current continuation argument ret makes its purpose more obvious:
-가끔 현재 continuation 인자를 ret으로 하는 것은 코드를 좀 더 명확하게 해준다.
+가끔 현재 continuation 인자를 ret으로 명명해서 코드를 좀 더 명확할 수 있다:
 
 	function id(x,ret) {
 	  ret(x) ;
 	}
 
 
-## Example: Naive factorial
 ## 예제: 단순무식한 팩토리얼
 
 아래는 보통의 단순무식한 팩토리얼이다:
