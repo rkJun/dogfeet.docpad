@@ -218,29 +218,21 @@ XMLHttpRequest를 이용하면 블로킹 프로시저인 'fetch(url)'을 작성�
 	}
 
 
-## Example: Fetching data
 ## 예제: 데이터 가져오기
 
-Consider a program that needs to grab a name for a UID.
-UID의 이름을 가져오는 프로그램이 필요하다고 하고,
+UID의 이름을 가져오는 프로그램이 필요하다고 치고, fetch를 이용해서 두 버전(동기, 비동기)을 다 만들어보자.
 
-Using fetch, both of the following work:
-fetch를 이용해서 두 버전(동기, 비동기)을 다 만든다.
-
-	// Blocks until request in finished:
 	// 요청이 끝날때 까지 블로킹 되어있다:
 	varsomeName = fetch("./1031/name") ;
 	 
 	document.write ("someName: "+ someName +"<br>") ;
 	 
-	// Does not block:
 	// 블로킹 되지 않는다:
 	fetch("./1030/name",function(name) {
 	 document.getElementById("name").innerHTML = name ;
 	}) ;
 
 
-(See the example.)
 ([예제][])
 
 
