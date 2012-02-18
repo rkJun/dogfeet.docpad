@@ -80,8 +80,7 @@ Sometimes, calling the current continuation argument ret makes its purpose more 
 ## Example: Naive factorial
 ## 예제: 단순무식한 팩토리얼
 
-Here's the standard naive factorial:
-아래는 표준형의 단순무식한 팩토리얼이다:
+아래는 보통의 단순무식한 팩토리얼이다:
 
 	function fact(n) {
 	  if(n == 0)
@@ -90,8 +89,7 @@ Here's the standard naive factorial:
 		return n * fact(n-1) ;
 	}
 
-Here it is in CPS:
-그리고 CPS로는 다음과 같다.
+그리고 이를 CPS로 작성하면 다음과 같다.
 
 	function fact(n,ret) {
 	  if(n == 0)
@@ -101,11 +99,10 @@ Here it is in CPS:
 		 ret(n * t0) }) ;
 	}
 
-And, to "use" the function  we pass it a callback:
-그리고 이 함수를 실제로 사용하기 위해 다음과 같이 콜백을 넘겨줬다:
+그리고 이 함수를 실제로 "사용"할때에는 다음과 같이 콜백을 넘겨준다:
 
 	fact (5,function(n) {
-	  console.log(n); // 120이 출력된다.Prints 120 in Firebug.
+	  console.log(n); // 콘솔에 120이 출력된다.
 	})
 
 
