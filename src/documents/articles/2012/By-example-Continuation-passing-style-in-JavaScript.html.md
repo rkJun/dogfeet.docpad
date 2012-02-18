@@ -325,31 +325,24 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	httpd.listen(8000) ;
 
 
-# CPS for distributed computation
 # 분산 컴퓨팅을 위한 CPS
 
-CPS eases factoring a computation into local and distributed portions.
-CPS를 사용하면 로컬과 분산에서의 처리가 덜 복잡해진다.
+CPS를 사용하면 로컬과 분산에서의 처리가 좀 더 간단해진다.
 
-Suppose you wrote the combinatorial choose function  first normally:
-조합을 계산해주는 함수인 choose를 작성해보자. 우선 일반적인 방법.
+조합(combination)을 계산해주는 함수인 choose를 작성해보자. 우선 일반적인 방법.
 
 	function choose (n,k) {
 	   return fact(n) /
 		  (fact(k) * fact(n-k)) ;  
 	}
 
-Now, suppose you want to compute factorial on a server, instead of locally.
-이제 이 코드가 로컬 컴퓨터가 아닌 서버에서 동작했으면 좋겠다(고 치자).
+이제 이 코드가 로컬 컴퓨터가 아닌 서버에서 동작해야한다고 한다면
 
-You could rewrite fact to block and wait for the server to respond.
-우리는 fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다리도록 재작성 할 수 있다.
+fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다리도록 재작성 할 수 있다.
 
-That's bad.
-이거 좋지않다. 
+근데 그거 좋지않다. 
 
-Instead, assume you wrote choose in CPS:
-대신 CPS로 choose를 작성한다고 해보자.
+대신 CPS로 choose를 작성해보자:
 
 	function choose(n,k,ret) {
 	  fact (n,  function(factn) {
@@ -358,8 +351,7 @@ Instead, assume you wrote choose in CPS:
 	  ret  (factn / (factnk * factk)) }) }) })
 	}
 
-Now, it's straightforward to redefine fact to asynchronously compute factorial on the server:
-이제 fact 프로시저로 비동기적으로 팩토리얼을 계산할 수 있도록 만들기가 쉬워졌다.
+이제 fact 프로시저를 비동기적으로 팩토리얼을 계산할 수 있도록 만들기가 쉬워졌다. 아래와 같이 말이다:
 
 	function fact(n,ret) {
 	 fetch ("./fact/"+ n,function(res) {
