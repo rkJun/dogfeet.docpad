@@ -130,32 +130,24 @@ continuation은 일급 리턴 포인트(first-class return point)이다.
 	}
 
 
-# CPS and Ajax 
 # CPS와 Ajax
 
-Ajax is a web programming technique which uses an XMLHttpRequest object in JavaScript to fetch data (asynchronously) from a server.
 Ajax는 자바스크립트의 XMLHttpRequest 객체를 이용해 비동기적으로 서버에서 데이터를 가져오는 웹 프로그래밍 기술이다.
 
-(That data need not be XML.)
 (근데 데이터는 꼭 XML일 필요는 없다)
 
 CPS provides an elegant way to do Ajax programming.
-CPS는 우아하게 Ajax 프로그래밍을 할 수 있는 방법을 제공한다.
+CPS는 Ajax 프로그래밍을 우아하게 할 수 있는 방법을 제공한다.
 
-With XMLHttpRequest, we could write a blocking procedure fetch(url) that grabs the contents of a url as a string, and then returns it.
-XMLHttpRequest를 이용하면 블로킹 프로시저인 fetch(url)을 작성할 수 있다. 이 프로시저는 url이 가리키는 페이지의 내용을 변수에 담아 문자열로 리턴한다.
+XMLHttpRequest를 이용하면 블로킹 프로시저인 'fetch(url)'을 작성할 수 있다. 이 프로시저는 url이 가리키는 페이지의 내용을 변수에 담아 문자열로 리턴한다.
 
-The problem with this approach is that JavaScript is a single-threaded language, and when JavaScript blocks, the browser is momentarily frozen.
 이런 방식의 문제는 자바스크립트가 단일 스레드만 지원하는 언어라는 점이다. 자바스크립트가 블럭되면 브라우저가 그 블럭되어 있는 동안은 멈춰버린다.
 
-It makes for an unpleasant user experience.
 그러면 사용자 경험이 망가진다.
 
-A better approach is a procedure fetch(url,callback) which allows execution (or browser rendering) to continue, and calls the provided callback once the request is completed.
-더 나은 방식은 프로시저를 fetch(url, callback) 형식으로 만드는 것이다. 이 프로시저는 코드 실행이나 브라우저 랜더링을 계속 하도록 블로킹 되지 않는다. 요청이 끝나면 호출할 콜백을 넘겨준다.
+더 나은 방식은 프로시저를 'fetch(url, callback)' 형식으로 만드는 것이다. 이 프로시저는 블로킹 되지 않기 때문에, 코드 실행이나 브라우저 랜더링을 막지 않는다. 이 프로시저에는 http 요청이 끝난 뒤에 호출해야 할 콜백을 넘겨준다.
 
-In this approach, partial CPS-conversion becomes a natural way to code.
-이 방식에서 부분적인 CPS으로 코딩 스타일을 변환은 자연스러운 방향이다.
+이렇게 코딩하는 과정에서 부분적으로 코딩 스타일이 CPS로 자연스레 변한다.
 
 
 ## Implementing fetch
