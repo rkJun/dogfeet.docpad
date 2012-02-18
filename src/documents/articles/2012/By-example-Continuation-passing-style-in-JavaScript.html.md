@@ -9,7 +9,7 @@ tags: ['javascript', 'CPS', 'programming']
 //예제로 설명하는 자바스크립트에서의 Continusation-passing style
 
 Continuation-passing style (CPS) originated as a style of programming in the 1970s, and it rose to prominence as an intermediate representation for compilers of advanced programming languages in the 1980s and 1990s.
-Continuation-passing style(이하 CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨나고, 1980대와 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
+Continuation-passing style(CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨났고, 1980, 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
 
 It's now being rediscovered as a style of programming for non-blocking (usually distributed) systems.
 이제 이 프로그래밍 스타일은 논 블로킹 시스템(그리고 보통 분산 시스템)에서 다시 조명받고 있다.
@@ -79,7 +79,7 @@ continuation은 일급 리턴 포인트이다.
 
 
 ## Example: Identity function 
-##예제: 항등 함수
+## 예제: 항등 함수
 
 Consider the identity function written normally:
 항등 함수가 평범하게 작성되었다고 해보자:
