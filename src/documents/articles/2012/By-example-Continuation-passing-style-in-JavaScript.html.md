@@ -420,16 +420,12 @@ CPS에서의 예외 처리는 continuation의 특수한 케이스라고 할 수 
 	});
 
 
-# CPS for compilation
 # 컴파일을 위한 CPS
 
-For three decades, CPS has been a powerful intermediate representation for compilers of functional programming languages.
-30년간 CPS는 함수형 언어 컴파일러가 사용하는 강력한 중간 표현식이었다.
+지난 30년간 CPS는 함수형 언어 컴파일러에서 사용하는 강력한 중간 표현식이었다.
 
-CPS desugars function return, exceptions and first-class continuations; function call turns into a single jump instruction.
 CPS는 함수의 리턴, 예외, 일급 continuation을 제거한다. 함수 호출은 그냥 하나의 점프 명령어로 변한다.
 
-In other words, CPS does a lot of the heavy lifting in compilation.
 다시 말해서, CPS는 컴파일에서 많은 것을 들어내는 데에 사용된다.
 
 
