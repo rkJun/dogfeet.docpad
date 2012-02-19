@@ -248,7 +248,6 @@ Partially CPS-converting a program makes for natural node.js programming.
 node.js 다운 프로그래밍을 하기 위해 부분적으로 프로그램을 CPS로 바꿀것이다.
 
 
-## Example: Simple web server
 ## 예제 : 간단한 웹 서버
 
 node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로 continuation을 넘기는 부분이 있다. select를 이용한 논 블러킹 IO에 비해 CPS를 이용한 논 블로킹 IO가 간단하다.
@@ -360,20 +359,15 @@ fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다
 	}
 
 
-# Implementing exceptions in CPS
 # CPS로 예외 처리 하기
 
-Once a program is in CPS, it breaks the standard exception mechanisms in the language. Fortunately, it's easy to implement exceptions in CPS.
-프로그램이 CPS로 작성되면, 그 언어의 표준적인 예외 처리 매커니즘은 쓸모없어진다. 다행히도 CPS에서 예외처리를 구현하는 것은 어렵지 않다.
+프로그램이 CPS로 작성되면, 그 언어의 표준적인 예외 처리 매커니즘은 쓸모없어진다. 다행히도 CPS로 예외처리를 구현하는 것은 어렵지 않다.
 
-An exception is a special case of a continuation.
-예외 처리는 continuation의 특수한 케이스이다.
+CPS에서의 예외 처리는 continuation의 특수한 케이스라고 할 수 있다.
 
-By passing the current exceptional continuation alongside the current continuation, one can desugar try/catch blocks.
-'현재 예외적 continuation'을 '현재 continuation'과 함께 던지는 것으로 try/catch 구문을 없앨 수 있다.
+'현재 예외적 continuation(current exceptional continuation)'을 '현재 continuation(current continuation)'과 함께 던지는 것으로 try/catch 구문을 없앨 수 있다.
 
-Consider the following example, which uses exceptions to define a "total" version of factorial:
-다음 예제를 보면 팩토리얼의 "total"버전을 정의할 때 exeption을 이용하고 있다.
+다음 예제를 보면 팩토리얼의 "total"버전을 정의할 때 exception을 이용하고 있다.
 
 	function fact (n) {
 	  if(n < 0)
@@ -395,8 +389,7 @@ Consider the following example, which uses exceptions to define a "total" versio
 	document.write("total_fact(10): "+ total_fact(10)) ;
 	document.write("total_fact(-1): "+ total_fact(-1)) ;
 
-By adding an exceptional continuation in CPS, we can desugar the throw, try and catch:
-CPS에서 예외적 continuation을 추가해서, throw, try, catch 를 제거할 수 있다.
+예외를 의미하는 continuation을 추가해서 throw, try, catch 를 제거할 수 있다:
 
 	function fact (n,ret,thro) {
 	 if(n < 0)
