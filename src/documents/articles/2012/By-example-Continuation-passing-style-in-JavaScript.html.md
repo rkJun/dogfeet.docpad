@@ -5,6 +5,7 @@ author: 'Yongjae Choi'
 date: '2012-02-09'
 tags: ['javascript', 'CPS', 'programming', 'continuation']
 ---
+_이 글은 [By example: Continuation-passing style in JavaScript][]를 정리한 것이다._
 
 Continuation-passing style(CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨났고, 1980, 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
 
@@ -55,10 +56,11 @@ continuation은 일급 리턴 포인트(first-class return point)이다.
 
 항등 함수가 평범하게 작성되었다고 해보자:
 
+`
 	function id(x) {
 	  return x ;
 	}
-
+`
 
 그리고 CPS로는 다음과 같이 작성한다:
 
@@ -136,7 +138,6 @@ Ajax는 자바스크립트의 XMLHttpRequest 객체를 이용해 비동기적으
 
 (근데 데이터는 꼭 XML일 필요는 없다)
 
-CPS provides an elegant way to do Ajax programming.
 CPS는 Ajax 프로그래밍을 우아하게 할 수 있는 방법을 제공한다.
 
 XMLHttpRequest를 이용하면 블로킹 프로시저인 'fetch(url)'을 작성할 수 있다. 이 프로시저는 url이 가리키는 페이지의 내용을 변수에 담아 문자열로 리턴한다.
@@ -239,7 +240,7 @@ UID의 이름을 가져오는 프로그램이 필요하다고 치고, fetch를 �
 # CPS and non-blocking programming
 # CPS와 논 블로킹 프로그래밍
 
-node.js는 블로킹 프로시저가 없는 자바스크립트를 위한 고성능, 서버사이드 플랫폼이다. 
+[node.js][]는 블로킹 프로시저가 없는 자바스크립트를 위한 고성능, 서버사이드 플랫폼이다. 
 
 node.js는 영특하게도 보통의 블로킹되는 프로시저들(e.g. 네트워크, 파일 I/O)은 콜백을 받아서 결과로써 콜백을 실행하게 되어있다.
 
@@ -429,17 +430,14 @@ CPS는 함수의 리턴, 예외, 일급 continuation을 제거한다. 함수 호
 다시 말해서, CPS는 컴파일에서 많은 것을 들어내는 데에 사용된다.
 
 
-## Translating the lambda calculus to CPS
 ## 람다 계산법을 CPS로 바꾸기
 
-The lambda calculus is a miniature Lisp, with just enough expressions (applications, anonymous function  and variable references) to make it universal for computation:
 람다는 보편적인 계산을 할 수 있는 표현식들(어플리케이션, 익명함수 변수 레퍼런스)을 가진 Lisp의 축소판이다. 
 
-	exp ::= (expexp)           ; 함수 어플리케이션 function application
-		  |  (lambda (var) exp)  ; 익명 함수 anonymous function
-		  |  var                 ; 변수 레퍼런스 variable reference
+	exp ::= (expexp)           ; 함수 어플리케이션
+		  |  (lambda (var) exp)  ; 익명 함수
+		  |  var                 ; 변수 레퍼런스
 
-The following Racket code converts this language into CPS:
 아래의 복잡한 코드는 위 언어를 CPS로 변환한다.
 
 	(define (cps-convert term cont)
@@ -465,18 +463,17 @@ The following Racket code converts this language into CPS:
 	(define (cps-convert-program term)
 	  (cps-convert term '(lambda (ans) ans)))
 
-For those interested, Olivier Danvy has plenty of papers on writing efficient CPS converters.
-관심있는 사람은, 올리비에 댄비가 효과적인 CPS 변환기에 관한 많은 논문을 써냈으니 참고하길 바란다.
+관심있는 사람은, [올리비에 댄비]가 효과적인 CPS 변환기에 관한 많은 논문을 써냈으니 참고하길 바란다.
+(주 : 사실 저는 Lisp을 잘 모릅니다. 이 부분에 대해선 모자란 부분이 많습니다만, 챕터는 빼지 않았습니다.)
 
 
 # Implementing call/cc in Lisp
 # Lisp에서 call/cc 구현하기
 
-The primitive call-with-current-continuation (commonly called call/cc) is the most powerful control-flow construct in modern programming.
-기본적인 '현재 continuation 호출'(보통 call/cc라고 불린다.)은 현대 프로그래밍에서 가장 강력한 제어 흐름 구조이다. 
+기본적인 '현재 continuation 호출(call-with-current-continuation)'(보통 call/cc라고 불린다.)은 현대 프로그래밍에서 가장 강력한 제어 흐름 구조이다. 
 
 CPS makes implementing call/cc trivial; it's a syntactic desugaring:
-call/cc는 CPS로 아주 쉽게 구현할수 있다: 이는 문법적 디슈거링이다. 
+call/cc는 CPS로 아주 쉽게 구현할수 있다: 이건 문법적 디슈거링이다. 
 
 	call/cc => (lambda (f cc) (f (lambda (x k) (cc x)) cc))
 
@@ -489,10 +486,8 @@ It does exactly what it's name says it will: it calls the procedure given as an 
 When that procedure capturing the continuation gets invoked, it "returns" the computation to the point at which the computation was created.
 
 
-# Implementing call/cc in JavaScript
 # JavaScript에서 call/cc 구현하기
 
-If one were to translate to continuation-passing style in JavaScript, call/cc has a simple definition:
 만약 어떤 자바스크립트 코드를 CPS로 바꾸고 싶다면 call/cc는 간단하게 정의할 수 있다.
 
 	function callcc (f,cc) { 
@@ -500,14 +495,25 @@ If one were to translate to continuation-passing style in JavaScript, call/cc ha
 	}
 
 
-# More resources
 # 더 읽어 볼 것 
 
-   * JavaScript: The Definitive Guide, the best book on JavaScript.
-   * JavaScript: The Good Parts, the only other good JavaScript book.
-   * Andrew Appel's timeless classic Compiling with Continuations.
-   * The Lambda Papers.
-   * My post on programming with continuations by example.
-   * Jay McCarthy et al.'s papers on a continuation-based web-server.
+   * [JavaScript: The Definitive Guide][], the best book on JavaScript.
+   * [JavaScript: The Good Parts][], the only other good JavaScript book.
+   * Andrew Appel's timeless classic [Compiling with Continuations][].
+   * [The Lambda Papers][].
+   * My post [on programming with continuations by example][].
+   * [Jay McCarthy][] et al.'s papers on a continuation-based web-server.
 
-[예제]: http://matt.might.net/articles/by-example-continuation-passing-style/code/client.html
+[By example: Continuation-passing style in JavaScript]:http://matt.might.net/articles/by-example-continuation-passing-style/
+[예제]:http://matt.might.net/articles/by-example-continuation-passing-style/code/client.html
+[올리비에 댄비]:http://www.brics.dk/~danvy/
+[node.js]:http://nodejs.org/
+
+[JavaScript: The Definitive Guide]:http://www.amazon.com/gp/product/0596101996?ie=UTF8&tag=ucmbread-20&linkCode=as2&camp=1789&creative=390957&creativeASIN=0596101996
+[JavaScript: The Good Parts]:http://www.amazon.com/gp/product/0596517742?ie=UTF8&tag=ucmbread-20&linkCode=as2&camp=1789&creative=390957&creativeASIN=0596517742
+[Compiling with Continuations]:http://www.amazon.com/gp/product/052103311X?ie=UTF8&tag=ucmbread-20&linkCode=as2&camp=1789&creative=390957&creativeASIN=052103311X
+[The Lambda Papers]:http://library.readscheme.org/page1.html
+[on programming with continuations by example]:http://matt.might.net/articles/programming-with-continuations--exceptions-backtracking-search-threads-generators-coroutines/
+[Jay McCarthy]:http://faculty.cs.byu.edu/~jay/home/
+
+
