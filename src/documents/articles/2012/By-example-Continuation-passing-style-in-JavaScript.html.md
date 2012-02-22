@@ -56,22 +56,20 @@ continuation은 일급 리턴 포인트(first-class return point)이다.
 
 항등 함수가 평범하게 작성되었다고 해보자:
 
-`
 	function id(x) {
-	  return x ;
+		return x ;
 	}
-`
 
 그리고 CPS로는 다음과 같이 작성한다:
 
 	function id(x,cc) {
-	  cc(x) ;
+		cc(x) ;
 	}
 
 가끔 현재 continuation 인자를 ret으로 명명해서 코드를 좀 더 명확할 수 있다:
 
 	function id(x,ret) {
-	  ret(x) ;
+		ret(x) ;
 	}
 
 
@@ -80,26 +78,25 @@ continuation은 일급 리턴 포인트(first-class return point)이다.
 아래는 보통의 단순무식한 팩토리얼이다:
 
 	function fact(n) {
-	  if(n == 0)
-		return 1 ;
-	  else
-		return n * fact(n-1) ;
+		if(n == 0)
+			return 1 ;
+		else
+			return n * fact(n-1) ;
 	}
 
 그리고 이를 CPS로 작성하면 다음과 같다.
 
 	function fact(n,ret) {
-	  if(n == 0)
-		ret(1) ;
-	  else
-		fact(n-1,function(t0) {
-		 ret(n * t0) }) ;
+		if(n == 0)
+			ret(1) ;
+		else
+			fact(n-1,function(t0) { ret(n * t0) }) ;
 	}
 
 그리고 이 함수를 실제로 "사용"할때에는 다음과 같이 콜백을 넘겨준다:
 
 	fact (5,function(n) {
-	  console.log(n); // 콘솔에 120이 출력된다.
+		console.log(n); // 콘솔에 120이 출력된다.
 	})
 
 
@@ -108,27 +105,27 @@ continuation은 일급 리턴 포인트(first-class return point)이다.
 아래는 tail-recursive 팩토리얼의 구현이다.
 
 	function fact(n) {
-	  return tail_fact(n,1) ;
+		return tail_fact(n,1) ;
 	}
 	 
 	function tail_fact(n,a) {
-	  if(n == 0)
-		return a ;
-	  else
-		return tail_fact(n-1,n*a) ;
+		if(n == 0)
+			return a ;
+		else
+			return tail_fact(n-1,n*a) ;
 	}
 
 그리고 아래는 CPS.
 
 	function fact(n,ret) {
-	  tail_fact(n,1,ret) ;
+		tail_fact(n,1,ret) ;
 	}
 	 
 	function tail_fact(n,a,ret) {
-	  if(n == 0)
-		ret(a) ;
-	  else
-		tail_fact(n-1,n*a,ret) ;
+		if(n == 0)
+			ret(a) ;
+		else
+			tail_fact(n-1,n*a,ret) ;
 	}
 
 
@@ -174,48 +171,47 @@ XMLHttpRequest를 이용하면 블로킹 프로시저인 'fetch(url)'을 작성�
 	*/
 	 
 	function fetch (url, onSuccess, onFail) {
-	 
-	  // Async only if a callback is defined:
-	  varasync = onSuccess ?true:false;
-	  // (이 라인의 비효율성에 대해 태클걸지 
-	  //  않길 바란다. 이건 중요한게 아니다.)
-	 
-	  varreq ; // XMLHttpRequest 객체.
-	 
-	  // XMLHttpRequest 콜백:
-	  function rocessReqChange() {
-		if(req.readyState == 4) {
-		  if(req.status == 200) {
-			if(onSuccess)
-			  onSuccess(req.responseText, url, req) ;
-		  }else{
-			if(onFail)
-			  onFail(url, req) ;
-		  }
+		// 콜백이 정의 되었을때만 비동기로 작동한다.
+		varasync = onSuccess ?true:false;
+		// (이 라인의 비효율성에 대해 태클걸지 
+		//  않길 바란다. 이건 중요한게 아니다.)
+
+		varreq ; // XMLHttpRequest 객체.
+
+		// XMLHttpRequest 콜백:
+		function rocessReqChange() {
+			if(req.readyState == 4) {
+				if(req.status == 200) {
+					if(onSuccess)
+						onSuccess(req.responseText, url, req) ;
+				}else{
+					if(onFail)
+						onFail(url, req) ;
+				}
+			}
 		}
-	  }
-	 
-	  // XMLHttpRequest 객체를 만든다:
-	  if(window.XMLHttpRequest)
-		req =newXMLHttpRequest();
-	  elseif(window.ActiveXObject)
-		req =newActiveXObject("Microsoft.XMLHTTP");
-	 
-	  // 비동기 모드라면 콜백을 세팅한다:
-	  if(async)
-		req.onreadystatechange = processReqChange;
-	 
-	  // 서버로 요청한다.
-	  req.open("GET", url, async);
-	  req.send(null);
-	 
-	  // 비동기 모드라면,
-	  //  요청 객체를 리턴한다; 아니라면
-	  //  응답을 리턴하다.
-	  if(async)
-		return req ;
-	  else
-		return req.responseText ;
+
+		// XMLHttpRequest 객체를 만든다:
+		if(window.XMLHttpRequest)
+			req =newXMLHttpRequest();
+		elseif(window.ActiveXObject)
+			req =newActiveXObject("Microsoft.XMLHTTP");
+
+		// 비동기 모드라면 콜백을 세팅한다:
+		if(async)
+			req.onreadystatechange = processReqChange;
+
+		// 서버로 요청한다.
+		req.open("GET", url, async);
+		req.send(null);
+
+		// 비동기 모드라면,
+		//  요청 객체를 리턴한다; 아니라면
+		//  응답을 리턴하다.
+		if(async)
+			return req ;
+		else
+			return req.responseText ;
 	}
 
 
@@ -225,12 +221,12 @@ UID의 이름을 가져오는 프로그램이 필요하다고 치고, fetch를 �
 
 	// 요청이 끝날때 까지 블로킹 되어있다:
 	varsomeName = fetch("./1031/name") ;
-	 
+	
 	document.write ("someName: "+ someName +"<br>") ;
-	 
+	
 	// 블로킹 되지 않는다:
 	fetch("./1030/name",function(name) {
-	 document.getElementById("name").innerHTML = name ;
+		document.getElementById("name").innerHTML = name ;
 	}) ;
 
 
@@ -263,64 +259,63 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	 
 	// 콜백을 넘겨주면서 웹 서버를 만든다:
 	varhttpd = http.createServer(function(req, res) {
-	  sys.puts(" request: "+ req.url) ;
-	 
-	  // url 파싱:
-	  varu = url.parse(req.url,true) ;
-	  varpath = u.pathname.split("/") ;
-	 
-	  // 경로에서 .. 를 없앤다.
-	  varlocalPath = u.pathname ;
-	  //  "<dir>/.." => ""
-	  varlocalPath =
-		  localPath.replace(/[^/]+\/+[.][.]/g,"") ;
-	  //  ".." => "."
-	  varlocalPath = DocRoot + 
-					  localPath.replace(/[.][.]/g,".") ;
-	 
-	  sys.puts(" local path: "+ localPath) ;
-	   
-	  // 요청받은 파일을 읽어서 되돌려 보낸다.
-	  // Note: readFile은 현재 continuation을 넘겨받는다.
-	  fs.readFile(localPath,function(err,data) {
-		varheaders = {} ;
-	 
-		if(err) {
-		  headers["Content-Type"] ="text/plain";
-		  res.writeHead(404, headers);
-		  res.write("404 File Not Found\n") ;
-		  res.end() ; 
-		}else{
-		  varmimetype = MIMEType(u.pathname) ;
-	 
-		  // 만약 'content type'을 찾지 못한다면 
-		  // 클라이언트가 알아서 하도록 냅 두자.
-		  if(mimetype)
-			headers["Content-Type"] = mimetype ;
-	 
-		  res.writeHead(200, headers) ;
-		  res.write(data) ;
-		  res.end() ;  
-		}
-	   }) ;
+		sys.puts(" request: "+ req.url) ;
+
+		// url 파싱:
+		varu = url.parse(req.url,true) ;
+		varpath = u.pathname.split("/") ;
+
+		// 경로에서 .. 를 없앤다.
+		varlocalPath = u.pathname ;
+		//  "<dir>/.." => ""
+		varlocalPath = localPath.replace(/[^/]+\/+[.][.]/g,"") ;
+		//  ".." => "."
+		varlocalPath = DocRoot + 
+		localPath.replace(/[.][.]/g,".") ;
+
+		sys.puts(" local path: "+ localPath) ;
+
+		// 요청받은 파일을 읽어서 되돌려 보낸다.
+		// Note: readFile은 현재 continuation을 넘겨받는다.
+		fs.readFile(localPath,function(err,data) {
+			varheaders = {} ;
+
+			if(err) {
+				headers["Content-Type"] ="text/plain";
+				res.writeHead(404, headers);
+				res.write("404 File Not Found\n") ;
+				res.end() ; 
+			}else{
+				varmimetype = MIMEType(u.pathname) ;
+
+				// 만약 'content type'을 찾지 못한다면 
+				// 클라이언트가 알아서 하도록 냅 두자.
+				if(mimetype)
+				headers["Content-Type"] = mimetype ;
+
+				res.writeHead(200, headers) ;
+				res.write(data) ;
+				res.end() ;  
+			}
+		}) ;
 	}) ;
-	 
+	
 	// 확장자와 MIME 타입을 매핑 시킨다:
 	varMIMETypes = {
-	 "html":"text/html",
-	 "js"   :"text/javascript",
-	 "css"  :"text/css",
-	 "txt"  :"text/plain"
+		"html":"text/html",
+		"js"   :"text/javascript",
+		"css"  :"text/css",
+		"txt"  :"text/plain"
 	} ;
-	 
+	
 	function IMEType(filename) {
-	 varparsed = filename.match(/[.](.*)$/) ;
-	 if(!parsed)
-	   return false;
-	 varext = parsed[1] ;
-	 return MIMEType[ext] ;
+		varparsed = filename.match(/[.](.*)$/) ;
+		if(!parsed)
+			return false;
+		varext = parsed[1] ;
+		return MIMEType[ext] ;
 	}
-	 
+	
 	// 8000번 포트를 리스닝 포트로 하여 서버를 시작한다:
 	httpd.listen(8000) ;
 
@@ -332,8 +327,8 @@ CPS를 사용하면 로컬과 분산에서의 처리가 좀 더 간단해진다.
 조합(combination)을 계산해주는 함수인 choose를 작성해보자. 우선 일반적인 방법.
 
 	function choose (n,k) {
-	   return fact(n) /
-		  (fact(k) * fact(n-k)) ;  
+		return fact(n) /
+			(fact(k) * fact(n-k)) ;  
 	}
 
 이제 이 코드가 로컬 컴퓨터가 아닌 서버에서 동작해야한다고 한다면
@@ -345,18 +340,18 @@ fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다
 대신 CPS로 choose를 작성해보자:
 
 	function choose(n,k,ret) {
-	  fact (n,  function(factn) {
-	  fact (n-k,function(factnk) {
-	  fact (k,  function(factk) {
-	  ret  (factn / (factnk * factk)) }) }) })
+		fact (n,  function(factn) {
+		fact (n-k,function(factnk) {
+		fact (k,  function(factk) {
+		ret  (factn / (factnk * factk)) }) }) })
 	}
 
 이제 fact 프로시저를 비동기적으로 팩토리얼을 계산할 수 있도록 만들기가 쉬워졌다. 아래와 같이 말이다:
 
 	function fact(n,ret) {
-	 fetch ("./fact/"+ n,function(res) {
-	   ret(eval(res))
-	 }) ;
+		fetch ("./fact/"+ n,function(res) {
+			ret(eval(res))
+		}) ;
 	}
 
 
@@ -371,20 +366,20 @@ CPS에서의 예외 처리는 continuation의 특수한 케이스라고 할 수 
 다음 예제를 보면 팩토리얼의 "total"버전을 정의할 때 exception을 이용하고 있다.
 
 	function fact (n) {
-	  if(n < 0)
-		throw "n < 0";
-	  elseif(n == 0)
-		return 1 ;
-	  else
-		return n * fact(n-1) ;
+		if(n < 0)
+			throw "n < 0";
+		elseif(n == 0)
+			return 1 ;
+		else
+			return n * fact(n-1) ;
 	}
 	 
 	function total_fact (n) {
-	  try{
-		return fact(n) ;
-	  }catch(ex) {
-		return false;
-	  }
+		try{
+			return fact(n) ;
+		}catch(ex) {
+			return false;
+		}
 	}
 	 
 	document.write("total_fact(10): "+ total_fact(10)) ;
@@ -413,11 +408,11 @@ CPS에서의 예외 처리는 continuation의 특수한 케이스라고 할 수 
 	}
 	 
 	total_fact(10,function(res) {
-	  document.write("total_fact(10): "+ res);
+		document.write("total_fact(10): "+ res);
 	});
 	 
 	total_fact(-1,function(res) {
-	  document.write("total_fact(-1): "+ res);
+		document.write("total_fact(-1): "+ res);
 	});
 
 
@@ -435,33 +430,33 @@ CPS는 함수의 리턴, 예외, 일급 continuation을 제거한다. 함수 호
 람다는 보편적인 계산을 할 수 있는 표현식들(어플리케이션, 익명함수 변수 레퍼런스)을 가진 Lisp의 축소판이다. 
 
 	exp ::= (expexp)           ; 함수 어플리케이션
-		  |  (lambda (var) exp)  ; 익명 함수
-		  |  var                 ; 변수 레퍼런스
+			|  (lambda (var) exp)  ; 익명 함수
+			|  var                 ; 변수 레퍼런스
 
 아래의 복잡한 코드는 위 언어를 CPS로 변환한다.
 
 	(define (cps-convert term cont)
-	  (match term
-		[`(,f ,e)
-		 ; =>
-		 (let (($f (gensym 'f))
-			   ($e (gensym 'e)))
-		   (cps-convert f `(lambda (,$f)
-			 ,(cps-convert e `(lambda (,$e)
-				 (,$f ,$e ,cont))))))]
+		(match term
+			[`(,f ,e)
+				; =>
+				(let (($f (gensym 'f))
+						($e (gensym 'e)))
+		   		(cps-convert f `(lambda (,$f)
+						,(cps-convert e `(lambda (,$e)
+							(,$f ,$e ,cont))))))]
 		
-		[`(lambda (,v) ,e)
-		 ; =>
-		 (let (($k (gensym 'k)))
-		   `(,cont (lambda (,v ,$k)
-					 ,(cps-convert e $k))))]
+			[`(lambda (,v) ,e)
+				; =>
+		 		(let (($k (gensym 'k)))
+		   		`(,cont (lambda (,v ,$k)
+						,(cps-convert e $k))))]
 		
-		[(? symbol?)
-		 ; =>
-		 `(,cont ,term)]))
+			[(? symbol?)
+				; =>
+				`(,cont ,term)]))
 
 	(define (cps-convert-program term)
-	  (cps-convert term '(lambda (ans) ans)))
+		(cps-convert term '(lambda (ans) ans)))
 
 관심있는 사람은, [올리비에 댄비]가 효과적인 CPS 변환기에 관한 많은 논문을 써냈으니 참고하길 바란다.
 (주 : 사실 저는 Lisp을 잘 모릅니다. 이 부분에 대해선 모자란 부분이 많습니다만, 챕터는 빼지 않았습니다.)
@@ -491,7 +486,7 @@ When that procedure capturing the continuation gets invoked, it "returns" the co
 만약 어떤 자바스크립트 코드를 CPS로 바꾸고 싶다면 call/cc는 간단하게 정의할 수 있다.
 
 	function callcc (f,cc) { 
-	  f(function(x,k) { cc(x) },cc)
+		f(function(x,k) { cc(x) },cc)
 	}
 
 
