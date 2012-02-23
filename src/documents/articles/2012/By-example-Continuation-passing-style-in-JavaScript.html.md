@@ -5,7 +5,7 @@ author: 'Yongjae Choi'
 date: '2012-02-09'
 tags: ['javascript', 'CPS', 'programming', 'continuation']
 ---
-_이 글은 [By example: Continuation-passing style in JavaScript][]를 정리한 것이다._
+_이 글은 [By example: Continuation-passing style in JavaScript][]를 번역한 것입니다._
 
 컨티뉴에이션-패싱 스타일(CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨났고, 1980, 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
 
