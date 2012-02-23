@@ -8,7 +8,7 @@ tags: ['javascript', 'CPS', 'programming', 'continuation']
 _이 글은 [By example: Continuation-passing style in JavaScript][]를 번역한 것입니다._
 _CPS에 대해 열심히 적어놨는데 간단히 말하자면 함수 호출의 끝에 원래의 context로 돌아가지 않고, 새로이 불릴 함수를 caller가 넘겨주는 프로그래밍 스타일을 말합니다._
 
-![recursive](/articles/2012/by example continuation-passing style in javascript/279433682_23ac618518.jpg)
+![recursive](/articles/2012/by-example-continuation-passing-style-in-javascript/279433682_23ac618518.jpg)
 
 (Photo by [gadl](http://www.flickr.com/photos/gadl/279433682/))
 
