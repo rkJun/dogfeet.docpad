@@ -7,7 +7,7 @@ tags: ['javascript', 'CPS', 'programming', 'continuation']
 ---
 _이 글은 [By example: Continuation-passing style in JavaScript][]를 정리한 것이다._
 
-Continuation-passing style(CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨났고, 1980, 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
+컨티뉴에이션-패싱 스타일(CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨났고, 1980, 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
 
 이제 이 프로그래밍 스타일은 논 블로킹 시스템(그리고 보통 분산 시스템)에서 다시 조명받고 있다.
 
@@ -23,23 +23,23 @@ Continuation-passing style(CPS)은 1970년대에 프로그래밍 스타일의 �
  * 분산 프로그래밍을 위한 CPS 
  * CPS를 이용해서 예외 처리 하는 방법 
  * 미니멀 Lisp을 위한 CPS 컨버터 
- * 리습에서 call/cc 구현하는 방법
+ * <strike>Lisp에서 call/cc 구현하는 방법</strike>[^1]
  * 자바스크립트에서 call/cc 구현하는 방법 
 
 시작하자.
 
 
-# 'Continuation-passing 스타일'이 뭐야?
+# '컨티뉴에이션-패싱 스타일'이 뭐야?
 
-만약 언어가 continuation을 지원한다면, 프로그래머는 예외와 백트래킹, 스레드, 제네레이터등의 제어 구조를 추가할 수 있다.
+만약 언어가 컨티뉴에이션을 지원한다면, 프로그래머는 예외와 백트래킹, 스레드, 제네레이터등의 제어 구조를 추가할 수 있다.
 
-슬프게도 continuation에 대한 많은 설명들은 막연하고 불충분한것 같다. 그런 것들은 더 탄탄한 교수법적인 기초가 필요하다.
+슬프게도 컨티뉴에이션에 대한 많은 설명들은 막연하고 불충분한것 같다. 그런 것들은 더 탄탄한 교수법적인 기초가 필요하다.
 
-Continuation-passing 스타일이 바로 그 기초이다.(주 : CPS를 이용하면 continuation에 대한 설명을 잘 할 수 있다는 의미.)
+컨티뉴에이션-패싱 스타일이 바로 그 기초이다.[^2]
 
-Continuation-passing 스타일은 코드라는 측면에서 continuation와 같은 의미가 있다.
+컨티뉴에이션-패싱 스타일은 코드라는 측면에서 컨티뉴에이션와 같은 의미가 있다.
 
-하나의 제약 사항만 지킨다면 프로그래머는 continuation-passing 스타일을 저절로 알 수도 있다.
+하나의 제약 사항만 지킨다면 프로그래머는 컨티뉴에이션-패싱 스타일을 저절로 알 수도 있다.
 
 	어떠한 프로시저도 caller로 리턴될 수 없다.
 
@@ -47,9 +47,9 @@ Continuation-passing 스타일은 코드라는 측면에서 continuation와 같�
 
 	프로시저는 그들의 리턴 값으로 호출 가능한 콜백을 받을 수 있다.
 
-프로시저가 caller로 "리턴" 해야할 때, 프로시저는 return 대신 "현재 continuation" 콜백을 호출한다. (이 콜백은 caller가 넘겨줬다.)
+프로시저가 caller로 "리턴" 해야할 때, 프로시저는 return 대신 "현재 컨티뉴에이션(current continuation)" 콜백을 호출한다. (이 콜백은 caller가 넘겨줬다.)
 
-continuation은 일급 리턴 포인트(first-class return point)이다.
+컨티뉴에이션은 일급 리턴 포인트(first-class return point)이다.
 
 
 ## 예제: 항등 함수
@@ -66,7 +66,7 @@ continuation은 일급 리턴 포인트(first-class return point)이다.
 		cc(x) ;
 	}
 
-가끔 현재 continuation 인자를 ret으로 명명해서 코드를 좀 더 명확할 수 있다:
+가끔 현재 컨티뉴에이션 인자를 ret으로 명명해서 코드를 좀 더 명확할 수 있다:
 
 	function id(x,ret) {
 		ret(x) ;
@@ -247,7 +247,7 @@ node.js 다운 프로그래밍을 하기 위해 부분적으로 프로그램을 
 
 ## 예제 : 간단한 웹 서버
 
-node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로 continuation을 넘기는 부분이 있다. select를 이용한 논 블러킹 IO에 비해 CPS를 이용한 논 블로킹 IO가 간단하다.
+node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로 컨티뉴에이션을 넘기는 부분이 있다. select를 이용한 논 블러킹 IO에 비해 CPS를 이용한 논 블로킹 IO가 간단하다.
 
 	varsys = require('sys') ;
 	varhttp = require('http') ;
@@ -276,7 +276,7 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 		sys.puts(" local path: "+ localPath) ;
 
 		// 요청받은 파일을 읽어서 되돌려 보낸다.
-		// Note: readFile은 현재 continuation을 넘겨받는다.
+		// Note: readFile은 현재 컨티뉴에이션을 넘겨받는다.
 		fs.readFile(localPath,function(err,data) {
 			varheaders = {} ;
 
@@ -359,9 +359,9 @@ fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다
 
 프로그램이 CPS로 작성되면, 그 언어의 표준적인 예외 처리 매커니즘은 쓸모없어진다. 다행히도 CPS로 예외처리를 구현하는 것은 어렵지 않다.
 
-CPS에서의 예외 처리는 continuation의 특수한 케이스라고 할 수 있다.
+CPS에서의 예외 처리는 컨티뉴에이션의 특수한 케이스라고 할 수 있다.
 
-'현재 예외적 continuation(current exceptional continuation)'을 '현재 continuation(current continuation)'과 함께 던지는 것으로 try/catch 구문을 없앨 수 있다.
+'현재 예외적 컨티뉴에이션(current exceptional 컨티뉴에이션)'을 '현재 컨티뉴에이션(current 컨티뉴에이션)'과 함께 던지는 것으로 try/catch 구문을 없앨 수 있다.
 
 다음 예제를 보면 팩토리얼의 "total"버전을 정의할 때 exception을 이용하고 있다.
 
@@ -385,26 +385,25 @@ CPS에서의 예외 처리는 continuation의 특수한 케이스라고 할 수 
 	document.write("total_fact(10): "+ total_fact(10)) ;
 	document.write("total_fact(-1): "+ total_fact(-1)) ;
 
-예외를 의미하는 continuation을 추가해서 throw, try, catch 를 제거할 수 있다:
+예외를 의미하는 컨티뉴에이션을 추가해서 throw, try, catch 를 제거할 수 있다:
 
 	function fact (n,ret,thro) {
-	 if(n < 0)
-	   thro ("n < 0");
-	 else if(n == 0)
-	   ret(1);
-	 else
-	   fact(n-1,
-		function(t0) {
-		  ret(n*t0);
-		},
-		thro);
+		if(n < 0)
+			thro ("n < 0");
+		else if(n == 0)
+			ret(1);
+		else
+			fact(n-1,
+				function(t0) {
+					ret(n*t0);
+				}, thro);
 	}
 	 
 	function total_fact (n,ret) {
-	  fact (n,ret,
-		function(ex) {
-		  ret(false);
-		});
+		fact (n,ret,
+			function(ex) {
+				ret(false);
+			});
 	}
 	 
 	total_fact(10,function(res) {
@@ -420,7 +419,7 @@ CPS에서의 예외 처리는 continuation의 특수한 케이스라고 할 수 
 
 지난 30년간 CPS는 함수형 언어 컴파일러에서 사용하는 강력한 중간 표현식이었다.
 
-CPS는 함수의 리턴, 예외, 일급 continuation을 제거한다. 함수 호출은 그냥 하나의 점프 명령어로 변한다.
+CPS는 함수의 리턴, 예외, 일급 컨티뉴에이션(first-class continuation)[^3]을 제거한다. 함수 호출은 그냥 하나의 점프 명령어로 변한다.
 
 다시 말해서, CPS는 컴파일에서 많은 것을 들어내는 데에 사용된다.
 
@@ -430,8 +429,8 @@ CPS는 함수의 리턴, 예외, 일급 continuation을 제거한다. 함수 호
 람다는 보편적인 계산을 할 수 있는 표현식들(어플리케이션, 익명함수 변수 레퍼런스)을 가진 Lisp의 축소판이다. 
 
 	exp ::= (expexp)           ; 함수 어플리케이션
-			|  (lambda (var) exp)  ; 익명 함수
-			|  var                 ; 변수 레퍼런스
+	    |  (lambda (var) exp)  ; 익명 함수
+	    |  var                 ; 변수 레퍼런스
 
 아래의 복잡한 코드는 위 언어를 CPS로 변환한다.
 
@@ -458,27 +457,7 @@ CPS는 함수의 리턴, 예외, 일급 continuation을 제거한다. 함수 호
 	(define (cps-convert-program term)
 		(cps-convert term '(lambda (ans) ans)))
 
-관심있는 사람은, [올리비에 댄비]가 효과적인 CPS 변환기에 관한 많은 논문을 써냈으니 참고하길 바란다.
-(주 : 사실 저는 Lisp을 잘 모릅니다. 이 부분에 대해선 모자란 부분이 많습니다만, 챕터는 빼지 않았습니다.)
-
-
-# Implementing call/cc in Lisp
-# Lisp에서 call/cc 구현하기
-
-기본적인 '현재 continuation 호출(call-with-current-continuation)'(보통 call/cc라고 불린다.)은 현대 프로그래밍에서 가장 강력한 제어 흐름 구조이다. 
-
-CPS makes implementing call/cc trivial; it's a syntactic desugaring:
-call/cc는 CPS로 아주 쉽게 구현할수 있다: 이건 문법적 디슈거링이다. 
-
-	call/cc => (lambda (f cc) (f (lambda (x k) (cc x)) cc))
-
-This desugaring (in conjunction with the CPS transformation) is the best way to understand exactly what call/cc does.
-이 디슈거링은 call/cc가 정확히 무엇인지 이해할 수 있는 최고의 방법이다.
-
-It does exactly what it's name says it will: it calls the procedure given as an argument with a procedure that has captured the current continuation.
-
-
-When that procedure capturing the continuation gets invoked, it "returns" the computation to the point at which the computation was created.
+관심있는 사람은, [올리비에 댄비]가 효과적인 CPS 변환기에 관한 많은 논문을 써냈으니 참고하길 바란다.[^4]
 
 
 # JavaScript에서 call/cc 구현하기
@@ -492,12 +471,17 @@ When that procedure capturing the continuation gets invoked, it "returns" the co
 
 # 더 읽어 볼 것 
 
-   * [JavaScript: The Definitive Guide][], the best book on JavaScript.
-   * [JavaScript: The Good Parts][], the only other good JavaScript book.
-   * Andrew Appel's timeless classic [Compiling with Continuations][].
-   * [The Lambda Papers][].
-   * My post [on programming with continuations by example][].
-   * [Jay McCarthy][] et al.'s papers on a continuation-based web-server.
+ * [JavaScript: The Definitive Guide][], the best book on JavaScript.
+ * [JavaScript: The Good Parts][], the only other good JavaScript book.
+ * Andrew Appel's timeless classic [Compiling with Continuations][].
+ * [The Lambda Papers][].
+ * My post [on programming with continuations by example][].
+ * [Jay McCarthy][] et al.'s papers on a continuation-based web-server.
+
+[^1]: 이 섹션은 이해가 모자라 제거 했습니다.
+[^2]: CPS를 이용하면 컨티뉴에이션에 대한 설명을 잘 할 수 있다는 의미.
+[^4]: http://en.wikipedia.org/wiki/Call-with-current-continuation
+[^4]: 저는 Lisp을 잘 모릅니다. 이 부분에 대해선 모자란 부분이 많습니다만, 챕터는 빼지 않았습니다.
 
 [By example: Continuation-passing style in JavaScript]:http://matt.might.net/articles/by-example-continuation-passing-style/
 [예제]:http://matt.might.net/articles/by-example-continuation-passing-style/code/client.html
