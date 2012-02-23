@@ -5,20 +5,20 @@ author: 'Yongjae Choi'
 date: '2012-02-09'
 tags: ['javascript', 'CPS', 'programming', 'continuation']
 ---
-_이 글은 [By example: Continuation-passing style in JavaScript][]를 번역한 것입니다._
-_CPS에 대해 열심히 적어놨는데 간단히 말하자면 함수 호출의 끝에 원래의 context로 돌아가지 않고, 새로이 불릴 함수를 caller가 넘겨주는 프로그래밍 스타일을 말합니다._
+_이 글은 [By example: Continuation-passing style in JavaScript][]를 번역한 것이다.
+CPS에 대해 열심히 적어놨는데 간단히 말하자면 함수 호출의 끝에 원래의 context로 돌아가지 않고, 새로이 불릴 함수를 caller가 넘겨주는 프로그래밍 스타일을 말한다._
 
-![recursive](/articles/2012/by example continuation-passing style in javascript/279433682_23ac618518.jpg)
+![recursive](/articles/2012/by-example-continuation-passing-style-in-javascript/279433682_23ac618518.jpg)
 
 (Photo by [gadl](http://www.flickr.com/photos/gadl/279433682/))
 
-컨티뉴에이션-패싱 스타일(CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨났고, 1980, 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 각광받았다.
+컨티뉴에이션-패싱 스타일(CPS)은 1970년대에 프로그래밍 스타일의 하나로 생겨났고, 1980, 1990년대에 고급 프로그래밍 언어 컴파일러의 중간 표현으로써 주목받았다.
 
 이제 이 프로그래밍 스타일은 논 블로킹 시스템(그리고 보통 분산 시스템)에서 다시 조명받고 있다.
 
-내가 박사 과정일때에 CPS는 비밀무기였다. 그래서 난 CPS를 좋아한다. 아마 그 덕분에 난 2년 정도를 아낄 수 있었고, 끝없는 고통에서 벗어날 수 있었다.
+내가 박사 과정일 때에 CPS는 비밀무기였다. 그래서 난 CPS를 좋아한다. 아마 그 덕분에 난 2년 정도를 아낄 수 있었고, 끝없는 고통에서 벗어날 수 있었다.
 
-이 글은 자바스크립트에서의 논 블로킹 프로그래밍 스타일로써의 CPS와 함수형 언어의 중간 형태로써의 CPS, 이렇게 두 가지 관점에서 CPS를 소개하는 글이다.
+이 글은 자바스크립트에서의 논 블로킹 프로그래밍 스타일로서의 CPS와 함수형 언어의 중간 형태로서의 CPS, 이렇게 두 가지 관점에서 CPS를 소개하는 글이다.
 
 주제는 다음과 같다. 
 
@@ -26,8 +26,8 @@ _CPS에 대해 열심히 적어놨는데 간단히 말하자면 함수 호출의
  * Ajax 프로그래밍을 위한 CPS
  * (node.js에서) 논 블로킹 프로그래밍을 위한 CPS 
  * 분산 프로그래밍을 위한 CPS 
- * CPS를 이용해서 예외 처리 하는 방법 
- * 미니멀 Lisp을 위한 CPS 컨버터 
+ * CPS를 이용해서 예외처리하는 방법 
+ * 미니말 Lisp을 위한 CPS 컨버터 
  * <strike>Lisp에서 call/cc 구현하는 방법</strike>[^1]
  * 자바스크립트에서 call/cc 구현하는 방법 
 
@@ -36,25 +36,23 @@ _CPS에 대해 열심히 적어놨는데 간단히 말하자면 함수 호출의
 
 # '컨티뉴에이션-패싱 스타일'이 뭐야?
 
-만약 언어가 컨티뉴에이션을 지원한다면, 프로그래머는 예외와 백트래킹, 스레드, 제네레이터등의 제어 구조를 추가할 수 있다.
+만약 언어가 컨티뉴에이션을 지원한다면, 프로그래머는 예외와 백트래킹, 스레드, 제네레이터(generator)등의 제어 구조를 추가할 수 있다.
 
-슬프게도 컨티뉴에이션에 대한 많은 설명들은 막연하고 불충분한것 같다. 그런 것들은 더 탄탄한 교수법적인 기초가 필요하다.
+슬프게도 컨티뉴에이션에 대한 많은 설명은 막연하고 불충분하다. 컨티뉴에이션-패싱 스타일이 바로 그런 것들을 해결해줄 것이다.
 
-컨티뉴에이션-패싱 스타일이 바로 그 기초이다.[^2]
+컨티뉴에이션-패싱 스타일은 코드라는 측면에서 컨티뉴에이션와 같다.
 
-컨티뉴에이션-패싱 스타일은 코드라는 측면에서 컨티뉴에이션와 같은 의미가 있다.
+하나의 제약 사항만 지킨다면 프로그래머는 컨티뉴에이션-패싱 스타일을 스스로 깨달을 수도 있다.
 
-하나의 제약 사항만 지킨다면 프로그래머는 컨티뉴에이션-패싱 스타일을 저절로 알 수도 있다.
+	어떠한 프로시저도 caller로 리턴(return)될 수 없다.
 
-	어떠한 프로시저도 caller로 리턴될 수 없다.
+아래 힌트는 CPS로 프로그래밍하는데 도움이 된다:
 
-아래 힌트는 그런 스타일로 프로그래밍 하는데 도움이 된다:
+	프로시저는 리턴 값으로 호출 가능한 콜백을 받을 수 있다.
 
-	프로시저는 그들의 리턴 값으로 호출 가능한 콜백을 받을 수 있다.
+프로시저가 caller로 "리턴" 해야 할 때, 프로시저는 return 대신 "현재 컨티뉴에이션(current continuation)" 콜백을 호출한다. (이 콜백은 caller가 넘겨줬다.)
 
-프로시저가 caller로 "리턴" 해야할 때, 프로시저는 return 대신 "현재 컨티뉴에이션(current continuation)" 콜백을 호출한다. (이 콜백은 caller가 넘겨줬다.)
-
-컨티뉴에이션은 일급 리턴 포인트(first-class return point)이다.
+컨티뉴에이션은 퍼스트-클래스 리턴 포인트(first-class return point)이다.
 
 
 ## 예제: 항등 함수
@@ -71,7 +69,7 @@ _CPS에 대해 열심히 적어놨는데 간단히 말하자면 함수 호출의
 		cc(x) ;
 	}
 
-가끔 현재 컨티뉴에이션 인자를 ret으로 명명해서 코드를 좀 더 명확할 수 있다:
+가끔 현재 컨티뉴에이션 인자를 ret으로 명명해서 코드를 좀 더 명확할 수 있다.:
 
 	function id(x,ret) {
 		ret(x) ;
@@ -98,7 +96,7 @@ _CPS에 대해 열심히 적어놨는데 간단히 말하자면 함수 호출의
 			fact(n-1,function(t0) { ret(n * t0) }) ;
 	}
 
-그리고 이 함수를 실제로 "사용"할때에는 다음과 같이 콜백을 넘겨준다:
+그리고 이 함수를 실제로 "사용" 할때에는 다음과 같이 콜백을 넘겨준다:
 
 	fact (5,function(n) {
 		console.log(n); // 콘솔에 120이 출력된다.
@@ -138,28 +136,28 @@ _CPS에 대해 열심히 적어놨는데 간단히 말하자면 함수 호출의
 
 Ajax는 자바스크립트의 XMLHttpRequest 객체를 이용해 비동기적으로 서버에서 데이터를 가져오는 웹 프로그래밍 기술이다.
 
-(근데 데이터는 꼭 XML일 필요는 없다)
+(근데 데이터는 꼭 XML일 필요는 없다.)
 
-CPS는 Ajax 프로그래밍을 우아하게 할 수 있는 방법을 제공한다.
+CPS는 우아하게 Ajax 프로그래밍 하는 방법을 제공한다.
 
 XMLHttpRequest를 이용하면 블로킹 프로시저인 'fetch(url)'을 작성할 수 있다. 이 프로시저는 url이 가리키는 페이지의 내용을 변수에 담아 문자열로 리턴한다.
 
-이런 방식의 문제는 자바스크립트가 단일 스레드만 지원하는 언어라는 점이다. 자바스크립트가 블럭되면 브라우저가 그 블럭되어 있는 동안은 멈춰버린다.
+이런 방식의 문제는 자바스크립트가 단일 스레드만 지원하는 언어라는 점이다. 자바스크립트가 블럭 되면 브라우저가 그 블럭 되어 있는 동안은 멈춰버린다.
 
 그러면 사용자 경험이 망가진다.
 
-더 나은 방식은 프로시저를 'fetch(url, callback)' 형식으로 만드는 것이다. 이 프로시저는 블로킹 되지 않기 때문에, 코드 실행이나 브라우저 랜더링을 막지 않는다. 이 프로시저에는 http 요청이 끝난 뒤에 호출해야 할 콜백을 넘겨준다.
+더 나은 방식은 프로시저를 'fetch(url, callback)' 형식으로 만드는 것이다. 이 프로시저는 블로킹 되지 않기 때문에, 코드 실행이나 브라우저 렌더링을 막지 않는다. 이 프로시저에는 http 요청이 끝난 뒤에 호출해야 할 콜백을 넘겨준다.
 
 이렇게 코딩하는 과정에서 부분적으로 코딩 스타일이 CPS로 자연스레 변한다.
 
 
 ## fetch 구현
 
- 콜백 제공 여부에 따라 논블러킹 모드나 블러킹 모드를 스위칭하며 동작하는 fetch 를 구현하는 것은 어렵지 않다.
+ 콜백 제공 여부에 따라 논블러킹 모드나 블러킹 모드를 스위칭하며 동작하는 fetch를 구현하는 것은 어렵지 않다.
 
 	/*
 	 fetch는 클라이언트에서 서버로 리퀘스트를
-	 보낼때 블로킹 될 수도 있고 안될 수도 있다.
+	 보낼 때 블로킹 될 수도 있고 안될 수도 있다.
 	 
 	 만약 url만 넘겨주면 프로시저는 블로킹 되고
 	 url이 가리키는 페이지의 내용을 리턴한다.
@@ -167,19 +165,18 @@ XMLHttpRequest를 이용하면 블로킹 프로시저인 'fetch(url)'을 작성�
 	 만약 onSuccess 콜백이 주어지면 
 	 프로시저는 논 블로킹이 된다. 
 	 콜백은 페이지의 내용을 
-	 인자로 받아 호출 될 것이다.
+	 인자로 받아 호출될 것이다.
 	 
 	 만약 onFail 콜백까지 주어지면
 	 요청이나 응답이 실패했을 때에 
 	 onFail이 fatch 프로시저에 의해서 호출된다.
-	 
 	*/
 	 
 	function fetch (url, onSuccess, onFail) {
-		// 콜백이 정의 되었을때만 비동기로 작동한다.
+		// 콜백이 정의 되었을 때만 비동기로 작동한다.
 		varasync = onSuccess ?true:false;
-		// (이 라인의 비효율성에 대해 태클걸지 
-		//  않길 바란다. 이건 중요한게 아니다.)
+		// (이 라인의 비효율성에 대해 태클 걸지 
+		//  않길 바란다. 이건 중요한 게 아니다.)
 
 		varreq ; // XMLHttpRequest 객체.
 
@@ -243,11 +240,11 @@ UID의 이름을 가져오는 프로그램이 필요하다고 치고, fetch를 �
 
 [node.js][]는 블로킹 프로시저가 없는 자바스크립트를 위한 고성능, 서버사이드 플랫폼이다. 
 
-node.js는 영특하게도 보통의 블로킹되는 프로시저들(e.g. 네트워크, 파일 I/O)은 콜백을 받아서 결과로써 콜백을 실행하게 되어있다.
+node.js는 영특하게도 보통의 블로킹 되는 프로시저들(e.g. 네트워크, 파일 I/O)은 콜백을 받아서 결과로써 콜백을 실행하게 되어있다.
 
 Partially CPS-converting a program makes for natural node.js programming.
 프로그램을 부분적으로 CPS로 변환하는 것이 node.js 프로그래밍 다운 프로그래밍이다.
-node.js 다운 프로그래밍을 하기 위해 부분적으로 프로그램을 CPS로 바꿀것이다.
+node.js 다운 프로그래밍을 하기 위해 부분적으로 프로그램을 CPS로 바꿀 것이다.
 
 
 ## 예제 : 간단한 웹 서버
@@ -259,7 +256,7 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 	varurl = require('url') ;
 	varfs = require('fs') ;
 	 
-	// 웹 서버 루트경로:
+	// 웹 서버 루트 경로:
 	varDocRoot ="./www/";
 	 
 	// 콜백을 넘겨주면서 웹 서버를 만든다:
@@ -294,7 +291,7 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 				varmimetype = MIMEType(u.pathname) ;
 
 				// 만약 'content type'을 찾지 못한다면 
-				// 클라이언트가 알아서 하도록 냅 두자.
+				// 클라이언트가 알아서 하도록 냅두자.
 				if(mimetype)
 				headers["Content-Type"] = mimetype ;
 
@@ -321,7 +318,7 @@ node.js로 만드는 간단한 웹 서버에는 파일을 읽는 프로시저로
 		return MIMEType[ext] ;
 	}
 	
-	// 8000번 포트를 리스닝 포트로 하여 서버를 시작한다:
+	// 8000번 포트를 리스닝(listening) 포트로 하여 서버를 시작한다:
 	httpd.listen(8000) ;
 
 
@@ -336,11 +333,11 @@ CPS를 사용하면 로컬과 분산에서의 처리가 좀 더 간단해진다.
 			(fact(k) * fact(n-k)) ;  
 	}
 
-이제 이 코드가 로컬 컴퓨터가 아닌 서버에서 동작해야한다고 한다면
+이제 이 코드가 로컬 컴퓨터가 아닌 서버에서 동작해야 한다고 한다면
 
-fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다리도록 재작성 할 수 있다.
+fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다리도록 재작성할 수 있다.
 
-근데 그거 좋지않다. 
+근데 그거 좋지 않다. 
 
 대신 CPS로 choose를 작성해보자:
 
@@ -351,7 +348,7 @@ fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다
 		ret  (factn / (factnk * factk)) }) }) })
 	}
 
-이제 fact 프로시저를 비동기적으로 팩토리얼을 계산할 수 있도록 만들기가 쉬워졌다. 아래와 같이 말이다:
+이제 비동기적으로 팩토리얼을 계산하는 fact 프로시저 만들기가 쉬워졌다. 아래와 같이 말이다:
 
 	function fact(n,ret) {
 		fetch ("./fact/"+ n,function(res) {
@@ -360,15 +357,15 @@ fact 프로시저를 서버에서 블로킹 되어 응답이 오기까지 기다
 	}
 
 
-# CPS로 예외 처리 하기
+# CPS로 예외처리하기
 
-프로그램이 CPS로 작성되면, 그 언어의 표준적인 예외 처리 매커니즘은 쓸모없어진다. 다행히도 CPS로 예외처리를 구현하는 것은 어렵지 않다.
+프로그램이 CPS로 작성되면, 그 언어의 표준적인 예외처리 매커니즘은 쓸모없어진다. 다행히도 CPS로 예외처리를 구현하는 것은 어렵지 않다.
 
-CPS에서의 예외 처리는 컨티뉴에이션의 특수한 케이스라고 할 수 있다.
+CPS에서의 예외처리는 컨티뉴에이션의 특수한 케이스라고 할 수 있다.
 
-'현재 예외적 컨티뉴에이션(current exceptional 컨티뉴에이션)'을 '현재 컨티뉴에이션(current 컨티뉴에이션)'과 함께 던지는 것으로 try/catch 구문을 없앨 수 있다.
+'현재 예외적 컨티뉴에이션(current exceptional continuation)'을 '현재 컨티뉴에이션(current continuation)'과 함께 던지는 것으로 try/catch 구문을 없앨 수 있다.
 
-다음 예제를 보면 팩토리얼의 "total"버전을 정의할 때 exception을 이용하고 있다.
+다음 예제를 보면 팩토리얼의 "total" 버전을 정의할 때 exception을 이용하고 있다.
 
 	function fact (n) {
 		if(n < 0)
@@ -424,7 +421,7 @@ CPS에서의 예외 처리는 컨티뉴에이션의 특수한 케이스라고 �
 
 지난 30년간 CPS는 함수형 언어 컴파일러에서 사용하는 강력한 중간 표현식이었다.
 
-CPS는 함수의 리턴, 예외, 일급 컨티뉴에이션(first-class continuation)[^3]을 제거한다. 함수 호출은 그냥 하나의 점프 명령어로 변한다.
+CPS는 함수의 리턴, 예외, 퍼스트-클래스 컨티뉴에이션(first-class continuation)[^2]을 제거한다. 함수 호출은 그냥 하나의 점프 명령어로 변한다.
 
 다시 말해서, CPS는 컴파일에서 많은 것을 들어내는 데에 사용된다.
 
@@ -462,7 +459,7 @@ CPS는 함수의 리턴, 예외, 일급 컨티뉴에이션(first-class continuat
 	(define (cps-convert-program term)
 		(cps-convert term '(lambda (ans) ans)))
 
-관심있는 사람은, [올리비에 댄비]가 효과적인 CPS 변환기에 관한 많은 논문을 써냈으니 참고하길 바란다.[^4]
+관심 있는 사람은, [올리비에 댄비(Olivier Danvy)]가 효과적인 CPS 변환기에 관한 많은 논문을 써냈으니 참고하길 바란다.
 
 
 # JavaScript에서 call/cc 구현하기
@@ -483,14 +480,12 @@ CPS는 함수의 리턴, 예외, 일급 컨티뉴에이션(first-class continuat
  * My post [on programming with continuations by example][].
  * [Jay McCarthy][] et al.'s papers on a continuation-based web-server.
 
-[^1]: 이 섹션은 이해가 모자라 제거 했습니다.
-[^2]: CPS를 이용하면 컨티뉴에이션에 대한 설명을 잘 할 수 있다는 의미.
-[^4]: http://en.wikipedia.org/wiki/Call-with-current-continuation
-[^4]: 저는 Lisp을 잘 모릅니다. 이 부분에 대해선 모자란 부분이 많습니다만, 챕터는 빼지 않았습니다.
+[^1]: 이 섹션은 이해가 모자라 제거 했다.
+[^2]: http://en.wikipedia.org/wiki/Continuation#First-class_continuations
 
 [By example: Continuation-passing style in JavaScript]:http://matt.might.net/articles/by-example-continuation-passing-style/
 [예제]:http://matt.might.net/articles/by-example-continuation-passing-style/code/client.html
-[올리비에 댄비]:http://www.brics.dk/~danvy/
+[올리비에 댄비(Olivier Danvy)]:http://www.brics.dk/~danvy/
 [node.js]:http://nodejs.org/
 
 [JavaScript: The Definitive Guide]:http://www.amazon.com/gp/product/0596101996?ie=UTF8&tag=ucmbread-20&linkCode=as2&camp=1789&creative=390957&creativeASIN=0596101996
